@@ -1,0 +1,36 @@
+@import './variable'
+
+.page
+  position relative
+  height 100%
+.card
+  position relative
+  background #fff
+  border 1rpx solid #e0e0e0
+  border-radius 7rpx
+  box-shadow 0 0 6rpx rgba(0, 0, 0, 0.15)
+  z-index 10
+  transition all 0.2s ease
+  &-header
+    color $color-text-secondary
+    font-size 28rpx
+    font-weight 700
+    padding 16rpx
+.task-item
+  display flex
+  align-items start
+  padding 20rpx
+  border-bottom 1rpx solid $color-divider
+  &-main
+    flex 1
+  &-title
+    color $color-text
+    font-size 36rpx
+  &-meta
+    display flex
+    align-items center
+    padding 2rpx 0
+    color $color-text-prompt
+  &-label
+    margin-right 24rpx
+    font-size 28rpx
