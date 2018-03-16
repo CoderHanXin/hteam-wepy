@@ -2,3 +2,4 @@ node_modules
 dist
 .vscode
 .DB_store
+.wepycache
