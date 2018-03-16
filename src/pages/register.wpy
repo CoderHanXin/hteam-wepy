@@ -1,0 +1,69 @@
+<template>
+  <view class="page">
+    <view class="flex-column">
+      <view class="account-up">
+        <label class="account-title">注册 HTeam 账号</label>
+      </view>
+      <view class="account-down">
+        <view class="flex-2 padding-cross-10">
+          <button hover-class="btn-primary-hover" class="account-button btn-primary">注册</button>
+        </view>
+        <view class="flex-1 flex-column flex-content-center"></view>
+      </view>
+      <view class="account-box">
+        <view class="account-item border-bottom">
+          <input class="account-input" @focus="setFoucs(0)" bindconfirm="setFoucs(1)" confirm-type="next" placeholder="邮箱" focus="{{focus[0]}}" />
+        </view>
+        <view class="account-item border-bottom">
+          <input class="account-input" @focus="setFoucs(1)" bindconfirm="setFoucs(2)" confirm-type="next" placeholder="名字" focus="{{focus[1]}}" />
+        </view>
+        <view class="account-item">
+          <input class="account-input" @focus="setFoucs(2)" confirm-type="send" placeholder="密码" focus="{{focus[2]}}" password="true" />
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Register extends wepy.page {
+  config = {
+    navigationBarTitleText: '注册账号'
+  }
+  data = {
+    focus: [true, false, false],
+    mailFocus: true,
+    nameFocus: false,
+    passwordFocus: false
+  }
+  methods = {
+    setFoucs(i) {
+      this.focus.forEach((element, index) => {
+        if (Number(i) === index) {
+          this.focus[index] = true
+        } else {
+          this.focus[index] = false
+        }
+      })
+    },
+    focusName() {
+      this.nameFocus = true
+      this.mailFocus = false
+      this.passwordFocus = false
+    },
+    focusPass() {
+      this.passwordFocus = true
+      this.mailFocus = false
+      this.nameFocus = false
+    }
+  }
+  onLoad() {
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/account'
+
+</style>

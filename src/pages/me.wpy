@@ -1,0 +1,103 @@
+<template>
+  <view class="page">
+    <view class="card margin-top-16">
+      <view class="card-header">今天</view>
+      <view class="task-item">
+        <checkbox value="" />
+        <view class="task-item-main">
+          <wxc-elip class="task-item-title" line="2">我是任务标题1我是任务标题1我是任务标题1我是任务标题1我是任务标题1我是任务标题1我是任务标题1我是任务标题1我是任务标题1</wxc-elip>
+          <view class="task-item-meta">
+            <label class="task-item-label">执行人</label>
+            <label :class="{error:labelColor}" class="task-item-label">
+              <text class="ht-icon ht-clock-outline"></text>
+              本周五
+            </label>
+            <label class="task-item-label">
+              <text class="ht-icon ht-project-outline"></text>
+              项目名称
+            </label>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="card margin-top-24">
+      <view class="card-header">今天</view>
+      <view class="task-item">
+        <checkbox value="" />
+        <view class="task-item-main">
+          <label class="task-item-title">我是任务标题1</label>
+          <view class="task-item-meta">
+            <label class="task-item-label">执行人</label>
+            <label class="task-item-label">本周五</label>
+            <label class="task-item-label">项目名称</label>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import HttpMixin from '@/mixins/http'
+import storage from 'utils/storage'
+import auth from 'utils/auth'
+import { api } from '@/config'
+export default class Me extends wepy.page {
+  config = {
+    navigationBarTitleText: '我的任务',
+    usingComponents: {
+      'wxc-icon': '../../packages/@minui/wxc-icon/dist/index',
+      'wxc-elip': '../../packages/@minui/wxc-elip/dist/index'
+    }
+  }
+
+  mixins = [HttpMixin]
+
+  components = {}
+
+  data = {
+    user: {},
+    labelColor: true
+  }
+
+  methods = {}
+
+  events = {}
+
+  async onLoad() {
+    this.checkToken()
+    console.log('page me onload')
+  }
+
+  async onShow() {
+    console.log('page me onshow')
+  }
+
+  async checkToken() {
+    let token = storage.get('token')
+    let result
+    if (!token) {
+      result = await auth.login()
+    } else {
+      console.log('api account show')
+      result = await this.request(api.user.show.method, api.user.show.url)
+    }
+    const teams = result.data.user.teams
+    storage.set('teams', teams)
+    storage.set('user', result.data.user)
+    if (teams.length === 1) {
+      storage.set('currentTeam', teams[0])
+      return result.data.user
+    } else {
+      wepy.redirectTo({
+        url: 'launch'
+      })
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+</style>

@@ -1,0 +1,18 @@
+<template>
+  <view>Team</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Team extends wepy.page {
+  config = {
+    navigationBarTitleText: '团队'
+  }
+
+  onLoad() { }
+}
+</script>
+
+<style>
+
+</style>

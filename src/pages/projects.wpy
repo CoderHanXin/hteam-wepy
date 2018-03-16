@@ -1,0 +1,26 @@
+<template>
+  <view>Projects</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import storage from '@/common/utils/storage'
+export default class Projects extends wepy.page {
+  config = {
+    navigationBarTitleText: '项目'
+  }
+
+  data = {
+    userInfo: {}
+  }
+
+  onLoad() {
+    this.userInfo = storage.get('user')
+    console.log(this.userInfo)
+  }
+}
+</script>
+
+<style>
+
+</style>
