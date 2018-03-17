@@ -17,15 +17,7 @@ const auth = {
     const result = await request(api.user.login.method, api.user.login.url, {
       user: userInfo
     })
-    if (!result.data.user) {
-      console.log('token: ', result.data.token)
-      storage.set('token', result.data.token)
-      wepy.redirectTo({
-        url: 'bind'
-      })
-    } else {
-      return result
-    }
+    return result
   }
 }
 
