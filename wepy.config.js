@@ -22,9 +22,6 @@ module.exports = {
     modules: ['node_modules']
   },
   compilers: {
-    less: {
-      compress: prod
-    },
     stylus: {
       compress: prod
     },
