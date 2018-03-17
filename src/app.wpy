@@ -5,10 +5,11 @@ import 'wepy-async-function'
 export default class extends wepy.app {
   config = {
     pages: [
+      'pages/launch',
       'pages/me',
       'pages/projects',
       'pages/team',
-      'pages/launch',
+      'pages/switchTeam',
       'pages/bind',
       'pages/register'
     ],
@@ -53,7 +54,9 @@ export default class extends wepy.app {
   }
 
   globalData = {
-    userInfo: null
+    user: {},
+    teams: [],
+    currentTeam: {}
   }
 
   constructor() {
@@ -77,16 +80,15 @@ export default class extends wepy.app {
       },
       fail(err) {
         console.log('request fail: ', err)
-        wepy.showToast({
+        wepy.showModal({
           title: '网络错误',
-          icon: 'none',
-          duration: 3000
+          content: err.errMsg
         })
         return err
       },
       complete(res) {
         wepy.hideLoading()
-        console.log('request complete: ', res)
+        console.log('request complete')
       }
     })
   }
@@ -95,6 +97,5 @@ export default class extends wepy.app {
 
 <style lang="stylus">
 @import './common/assets/style'
-
 
 </style>
