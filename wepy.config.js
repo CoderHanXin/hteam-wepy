@@ -15,7 +15,8 @@ module.exports = {
   resolve: {
     alias: {
       '@': path.join(__dirname, 'src'),
-      'utils': path.join(__dirname, 'src/common/utils')
+      'utils': path.join(__dirname, 'src/common/utils'),
+      'BasePage': path.join(__dirname, 'src/common/BasePage')
     },
     aliasFields: ['wepy'],
     modules: ['node_modules']
