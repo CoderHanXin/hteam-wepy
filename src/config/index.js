@@ -5,6 +5,10 @@ const domain =
 
 const api = {
   user: {
+    register: {
+      method: 'POST',
+      url: '/api/account/register'
+    },
     login: {
       method: 'POST',
       url: '/api/account/wxlogin'
