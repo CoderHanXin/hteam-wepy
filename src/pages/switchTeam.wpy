@@ -1,0 +1,94 @@
+<template>
+  <view class="page">
+    <view class="flex-column">
+      <view class="account-up">
+        <label class="account-title">请选择你的团队</label>
+      </view>
+      <view class="account-down"></view>
+      <view class="account-box">
+        <view @tap="switchTeam({{item}})" wx:for="{{teams}}" wx:key="{{index}}" wx:for-item="item" :class="{border-top: index !== 0}" class="account-item" hover="true" hover-class="view-light-hover">
+          <text class="text-link">{{item.name}}</text>
+        </view>
+        <view @tap="showCreate" :class="{border-top: teams.length !== 0}" class="account-item" hover="true" hover-class="view-light-hover">
+          <text class="text-link">＋ 创建新团队</text>
+        </view>
+      </view>
+    </view>
+    <view :class="{page-cover-show: visable}" class="page-cover">
+      <view class="account-toolbar">
+        <text @tap="handleCancel" class="text-link text-button">取消</text>
+        <text @tap="handleCreate" class="text-link text-button">创建</text>
+      </view>
+      <view class="team-input">
+        <input value="{{inputValue}}" @input="inputChange" maxlength="20" type="text" placeholder="例如：研发团队" />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import { api } from '@/config'
+export default class SwitchTeam extends BasePage {
+  config = {
+    navigationBarTitleText: '选择团队'
+  }
+
+  data = {
+    visable: false,
+    teams: [],
+    inputValue: '',
+    name: ''
+  }
+
+  methods = {
+    switchTeam(item) {
+      this.store().currentTeam = item
+      wepy.switchTab({
+        url: 'me'
+      })
+    },
+    inputChange(e) {
+      this.name = e.detail.value
+      return this.name
+    },
+    showCreate() {
+      this.inputValue = ''
+      this.visable = true
+    },
+    handleCancel() {
+      this.visable = false
+      this.name = ''
+    },
+    async handleCreate() {
+      if (this.name.trim() === '') {
+        this.showToast('请输入团队名称')
+        return
+      }
+      const result = await this.request(api.team.create.method, api.team.create.url, {
+        name: this.name.trim(),
+        userId: this.user.id
+      })
+      this.teams.push(result.data)
+      this.visable = false
+      this.name = ''
+      this.$apply()
+    }
+  }
+
+  onLoad() {
+    this.user = this.store().user
+    this.teams = this.store().teams
+  }
+}
+</script>
+<style lang="stylus">
+@import '../common/assets/style/account'
+
+.team-input
+  padding 16rpx
+  background #fff
+  border 1rpx solid $color-divider
+  box-shadow 0 0 6rpx rgba(0, 0, 0, 0.15)
+</style>
