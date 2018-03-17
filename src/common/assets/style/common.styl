@@ -14,6 +14,12 @@
   margin-bottom 24rpx
 .margin-bottom-32
   margin-bottom 32rpx
+/* padding
+   ========================================================================== */
+.padding-8
+  padding 8rpx
+.padding-16
+  padding 16rpx
 /* border
    ========================================================================== */
 .border-top
@@ -27,6 +33,11 @@
   display flex
   flex-direction column
   height 100%
+.flex-row
+  position relative
+  display flex
+  flex-direction row
+  width 100%
 .flex-content-center
   justify-content center
 .flex-1
@@ -66,3 +77,21 @@
   background-color $color-backgorund-light-hover
 .text-link
   color $color-primary
+.text-button
+  display block
+  padding 16rpx
+
+/* page cover
+   ========================================================================== */
+.page-cover
+  position absolute
+  top 100%
+  height 0
+  width 100%
+  z-index 100
+  background-color #fff
+  overflow hidden
+  transition all .5s ease-in-out .1s
+.page-cover-show
+  top 0
+  height 100%
