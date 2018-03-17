@@ -74,8 +74,8 @@ export default class Bind extends BasePage {
     })
 
     if (result.code === 0) {
-      storage.set('token', result.data.token)
       this.showToast('绑定成功', 'success')
+      storage.set('token', result.data.token)
       wepy.redirectTo({
         url: 'launch'
       })

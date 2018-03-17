@@ -34,11 +34,9 @@ export default class Launch extends BasePage {
 
   async onLoad() {
     this.checkToken()
-    console.log('page launch onload')
   }
 
   async onShow() {
-    console.log('page launch onshow')
     console.log('store', this.store())
   }
 
@@ -50,6 +48,16 @@ export default class Launch extends BasePage {
     } else {
       result = await this.request(api.user.show.method, api.user.show.url)
     }
+
+    if (!result.data.user) {
+      console.log('token: ', result.data.token)
+      storage.set('token', result.data.token)
+      wepy.redirectTo({
+        url: 'bind'
+      })
+      return
+    }
+
     const teams = result.data.user.teams
     let store = this.store()
     store.teams = teams

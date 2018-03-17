@@ -6,19 +6,19 @@
       </view>
       <view class="account-down">
         <view class="flex-2 padding-cross-10">
-          <button hover-class="btn-primary-hover" class="account-button btn-primary">注册</button>
+          <button @tap="submit" hover-class="btn-primary-hover" class="account-button btn-primary">注册</button>
         </view>
         <view class="flex-1 flex-column flex-content-center"></view>
       </view>
       <view class="account-box">
         <view class="account-item border-bottom">
-          <input class="account-input" @focus="setFoucs(0)" bindconfirm="setFoucs(1)" confirm-type="next" placeholder="邮箱" focus="{{focus[0]}}" />
+          <input class="account-input" @input="inputChangeName" @confirm="focusUsername" confirm-type="next" maxlength="20" placeholder="你的名字" focus="true" />
         </view>
         <view class="account-item border-bottom">
-          <input class="account-input" @focus="setFoucs(1)" bindconfirm="setFoucs(2)" confirm-type="next" placeholder="名字" focus="{{focus[1]}}" />
+          <input class="account-input" @input="inputChangeUsername" @confirm="focusPassword" confirm-type="next" maxlength="20" placeholder="用户名" focus="{{usernameFocus}}" />
         </view>
         <view class="account-item">
-          <input class="account-input" @focus="setFoucs(2)" confirm-type="send" placeholder="密码" focus="{{focus[2]}}" password="true" />
+          <input class="account-input" @input="inputChangePassword" @confirm="submit" confirm-type="send" maxlength="16" placeholder="密码" focus="{{passwordFocus}}" password="true" />
         </view>
       </view>
     </view>
@@ -27,43 +27,73 @@
 
 <script>
 import wepy from 'wepy'
-export default class Register extends wepy.page {
+import BasePage from 'BasePage'
+import storage from 'utils/storage'
+import { api } from '@/config'
+export default class Register extends BasePage {
   config = {
     navigationBarTitleText: '注册账号'
   }
   data = {
-    focus: [true, false, false],
-    mailFocus: true,
-    nameFocus: false,
-    passwordFocus: false
+    usernameFocus: false,
+    passwordFocus: false,
+    username: '',
+    name: '',
+    password: ''
   }
   methods = {
-    setFoucs(i) {
-      this.focus.forEach((element, index) => {
-        if (Number(i) === index) {
-          this.focus[index] = true
-        } else {
-          this.focus[index] = false
-        }
-      })
+    focusUsername() {
+      this.usernameFocus = true
     },
-    focusName() {
-      this.nameFocus = true
-      this.mailFocus = false
-      this.passwordFocus = false
-    },
-    focusPass() {
+    focusPassword() {
       this.passwordFocus = true
-      this.mailFocus = false
-      this.nameFocus = false
+      this.usernameFocus = false
+    },
+    inputChangeName(e) {
+      this.name = e.detail.value
+    },
+    inputChangeUsername(e) {
+      this.username = e.detail.value
+    },
+    inputChangePassword(e) {
+      this.password = e.detail.value
+    },
+    submit() {
+      if (this.name.trim() === '') {
+        this.showToast('请输入你的名字')
+        return
+      }
+      if (this.username.trim() === '') {
+        this.showToast('请输入用户名')
+        return
+      }
+      if (this.password.trim() === '') {
+        this.showToast('请输入密码')
+        return
+      }
+      this.register()
     }
   }
-  onLoad() {
+  async register() {
+    const result = await this.request(api.user.register.method, api.user.register.url, {
+      username: this.username,
+      password: this.password,
+      name: this.name
+    })
+    if (result.code === 0) {
+      this.showToast('注册成功', 'success')
+      storage.set('token', result.data.token)
+      this.store().user = result.data.user
+      wepy.redirectTo({
+        url: 'switchTeam'
+      })
+    } else {
+      this.showToast(result.message)
+    }
   }
 }
 </script>
 
 <style lang="stylus">
 @import '../common/assets/style/account'
-
 </style>
