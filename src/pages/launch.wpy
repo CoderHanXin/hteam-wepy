@@ -1,0 +1,75 @@
+<template>
+  <view class="page">
+    <wxc-abnor type="COUPON" image="{{launch.image}}" title="{{launch.title}}" tip="{{launch.tip}}"></wxc-abnor>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import storage from 'utils/storage'
+import auth from 'utils/auth'
+import { api } from '@/config'
+export default class Launch extends BasePage {
+  config = {
+    usingComponents: {
+      'wxc-abnor': '../../packages/@minui/wxc-abnor/dist/index'
+    }
+  }
+
+  components = {}
+
+  data = {
+    launch: {
+      title: 'HTeam',
+      tip: '团队协作工具',
+      image: 'https://s10.mogucdn.com/p2/161213/upload_3bd517df2kgkclkhgl71bg4b37dcc_514x260.png'
+    },
+    user: {}
+  }
+
+  methods = {}
+
+  events = {}
+
+  async onLoad() {
+    this.checkToken()
+    console.log('page launch onload')
+  }
+
+  async onShow() {
+    console.log('page launch onshow')
+    console.log('store', this.store())
+  }
+
+  async checkToken() {
+    let token = storage.get('token')
+    let result
+    if (!token) {
+      result = await auth.login()
+    } else {
+      result = await this.request(api.user.show.method, api.user.show.url)
+    }
+    const teams = result.data.user.teams
+    let store = this.store()
+    store.teams = teams
+    store.user = result.data.user
+    if (result.data.token) {
+      storage.set('token', result.data.token)
+    }
+    if (teams.length === 1) {
+      store.currentTeam = teams[0]
+      wepy.redirectTo({
+        url: 'me'
+      })
+    } else {
+      wepy.redirectTo({
+        url: 'switchTeam'
+      })
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+</style>
