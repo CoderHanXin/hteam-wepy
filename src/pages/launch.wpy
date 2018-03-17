@@ -67,7 +67,7 @@ export default class Launch extends BasePage {
     }
     if (teams.length === 1) {
       store.currentTeam = teams[0]
-      wepy.redirectTo({
+      wepy.switchTab({
         url: 'me'
       })
     } else {
