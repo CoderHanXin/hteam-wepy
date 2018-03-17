@@ -3,20 +3,19 @@
 </template>
 
 <script>
-import wepy from 'wepy'
-import storage from '@/common/utils/storage'
-export default class Projects extends wepy.page {
+// import wepy from 'wepy'
+import BasePage from 'BasePage'
+export default class Projects extends BasePage {
   config = {
     navigationBarTitleText: '项目'
   }
 
   data = {
-    userInfo: {}
   }
 
   onLoad() {
-    this.userInfo = storage.get('user')
-    console.log(this.userInfo)
+    this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
   }
 }
 </script>

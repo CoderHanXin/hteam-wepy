@@ -3,13 +3,17 @@
 </template>
 
 <script>
-import wepy from 'wepy'
-export default class Team extends wepy.page {
+// import wepy from 'wepy'
+import BasePage from 'BasePage'
+export default class Team extends BasePage {
   config = {
     navigationBarTitleText: '团队'
   }
 
-  onLoad() { }
+  onLoad() {
+    this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
+  }
 }
 </script>
 
