@@ -18,6 +18,12 @@ const api = {
       url: '/api/account/show'
     }
   },
+  team: {
+    create: {
+      method: 'POST',
+      url: '/api/team/create'
+    }
+  },
   project: {
     list: {
       method: 'GET',
