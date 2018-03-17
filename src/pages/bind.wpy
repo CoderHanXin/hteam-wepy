@@ -9,17 +9,18 @@
           <button @tap="submit" hover-class="btn-primary-hover" class="account-button btn-primary">绑定</button>
         </view>
         <view class="flex-1 flex-column flex-content-center">
-          <text>没有账号？
-            <text class="text-link">立即注册</text>
-          </text>
+          <view>
+            <text>没有账号？</text>
+            <text @tap="gotoRegister" class="text-link">立即注册</text>
+          </view>
         </view>
       </view>
       <view class="account-box">
         <view class="account-item border-bottom">
-          <input class="account-input" bindinput="inputChangeUsername" bindconfirm="focusPass" confirm-type="next" placeholder="用户名" type="text" focus="true" />
+          <input class="account-input" @input="inputChangeUsername" @confirm="focusPass" confirm-type="next" maxlength="20" placeholder="用户名" type="text" focus="true" />
         </view>
         <view class="account-item">
-          <input class="account-input" bindinput="inputChangePassword" bindconfirm="submit" confirm-type="send" placeholder="密码" focus="{{passwordFocus}}" password="true" />
+          <input class="account-input" @input="inputChangePassword" @confirm="submit" confirm-type="send" maxlength="16" placeholder="密码" focus="{{passwordFocus}}" password="true" />
         </view>
       </view>
     </view>
@@ -28,15 +29,13 @@
 
 <script>
 import wepy from 'wepy'
-import HttpMixin from '@/mixins/http'
+import BasePage from 'BasePage'
 import storage from 'utils/storage'
 import { api } from '@/config'
-export default class Bind extends wepy.page {
+export default class Bind extends BasePage {
   config = {
     navigationBarTitleText: '绑定账号'
   }
-
-  mixins = [HttpMixin]
 
   data = {
     code: '',
@@ -57,28 +56,31 @@ export default class Bind extends wepy.page {
     },
     submit() {
       if (this.username === '' || this.password === '') {
-        wepy.showToast('请输入用户名和密码')
+        this.showToast('请输入用户名和密码')
         return
       }
       this.bind()
+    },
+    gotoRegister() {
+      wepy.navigateTo({
+        url: 'register'
+      })
     }
-  }
-  onLoad() {
   }
   async bind() {
     const result = await this.request(api.user.bind.method, api.user.bind.url, {
       username: this.username,
       password: this.password
     })
-    console.log('bind: ', result)
 
     if (result.code === 0) {
       storage.set('token', result.data.token)
-      wepy.showToast({
-        title: '绑定成功',
-        icon: 'success'
+      this.showToast('绑定成功', 'success')
+      wepy.redirectTo({
+        url: 'launch'
       })
-      wepy.navigateBack()
+    } else {
+      this.showToast(result.message)
     }
   }
 }
