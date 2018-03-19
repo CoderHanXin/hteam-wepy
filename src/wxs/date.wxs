@@ -1,0 +1,16 @@
+var format = function(t) {
+  var now = getDate()
+  var d = getDate(t)
+  var nowYear = now.getFullYear()
+  var year = d.getFullYear()
+  var month = d.getMonth() + 1
+  var day = d.getDate()
+  month = month < 10 ? '0' + month : month
+  return nowYear === year
+    ? [month, day].join('-')
+    : [year, month, day].join('-')
+}
+
+module.exports = {
+  format: format
+}
