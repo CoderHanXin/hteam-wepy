@@ -38,6 +38,14 @@ const api = {
     list: {
       method: 'GET',
       url: '/api/task'
+    },
+    page: {
+      method: 'GET',
+      url: '/api/task/page'
+    },
+    update: {
+      method: 'PUT',
+      url: '/api/task/:id'
     }
   }
 }
