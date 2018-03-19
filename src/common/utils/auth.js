@@ -1,5 +1,4 @@
 import wepy from 'wepy'
-import storage from 'utils/storage'
 import { api } from '@/config/index'
 import { request } from 'utils/request'
 
