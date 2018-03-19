@@ -33,6 +33,12 @@ const api = {
       method: 'GET',
       url: '/api/project'
     }
+  },
+  task: {
+    list: {
+      method: 'GET',
+      url: '/api/task'
+    }
   }
 }
 
