@@ -1,6 +1,7 @@
 <script>
 import wepy from 'wepy'
 import 'wepy-async-function'
+import storage from 'utils/storage'
 
 export default class extends wepy.app {
   config = {
@@ -71,6 +72,11 @@ export default class extends wepy.app {
       },
       success(res) {
         if (res.statusCode === 200) {
+          let token = res.data.data.token
+          if (token) {
+            storage.set('token', token)
+          }
+          console.log('token: ', token)
         } else if (res.statusCode === 401) {
         } else if (res.statusCode === 500) {
         } else {
