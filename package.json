@@ -15,8 +15,10 @@
   "wepy": {},
   "dependencies": {
     "@minui/wxc-abnor": "^1.0.7",
+    "@minui/wxc-avatar": "^1.0.4",
     "@minui/wxc-elip": "^1.0.5",
     "@minui/wxc-icon": "^1.0.8",
+    "moment": "^2.21.0",
     "wepy": "^1.7.1",
     "wepy-async-function": "^1.4.5"
   },
