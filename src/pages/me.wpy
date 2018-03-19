@@ -48,7 +48,7 @@
 </template>
 
 <script>
-// import wepy from 'wepy'
+import wepy from 'wepy'
 import BasePage from 'BasePage'
 import date from 'utils/date'
 import wxsDate from '../wxs/date.wxs'
@@ -57,6 +57,7 @@ import { api } from '@/config'
 export default class Me extends BasePage {
   config = {
     navigationBarTitleText: '我的任务',
+    enablePullDownRefresh: true,
     usingComponents: {
       'wxc-elip': '../../packages/@minui/wxc-elip/dist/index'
     }
@@ -176,8 +177,11 @@ export default class Me extends BasePage {
     this.getList()
   }
 
-  async onShow() {
-    console.log('page me onshow')
+  async onPullDownRefresh() {
+    this.doneList = []
+    this.visable = false
+    await this.getList()
+    wepy.stopPullDownRefresh()
   }
 
   async getList() {
@@ -201,7 +205,6 @@ export default class Me extends BasePage {
     }
     this.doneList = this.doneList.concat(result.data.rows)
     this.$apply()
-    console.log(result)
   }
 
   async updateTask(id, task, event) {
