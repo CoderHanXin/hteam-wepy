@@ -7,9 +7,7 @@
 <script>
 import wepy from 'wepy'
 import BasePage from 'BasePage'
-import storage from 'utils/storage'
 import auth from 'utils/auth'
-import { api } from '@/config'
 export default class Launch extends BasePage {
   config = {
     usingComponents: {
@@ -30,28 +28,14 @@ export default class Launch extends BasePage {
 
   methods = {}
 
-  events = {}
-
   async onLoad() {
-    this.checkToken()
+    this.login()
   }
 
-  async onShow() {
-    console.log('store', this.store())
-  }
-
-  async checkToken() {
-    let token = storage.get('token')
-    let result
-    if (!token) {
-      result = await auth.login()
-    } else {
-      result = await this.request(api.user.show.method, api.user.show.url)
-    }
+  async login() {
+    const result = await auth.login()
 
     if (!result.data.user) {
-      console.log('token: ', result.data.token)
-      storage.set('token', result.data.token)
       wepy.redirectTo({
         url: 'bind'
       })
@@ -62,9 +46,6 @@ export default class Launch extends BasePage {
     let store = this.store()
     store.teams = teams
     store.user = result.data.user
-    if (result.data.token) {
-      storage.set('token', result.data.token)
-    }
     if (teams.length === 1) {
       store.currentTeam = teams[0]
       wepy.switchTab({
