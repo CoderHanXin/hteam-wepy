@@ -1,0 +1,204 @@
+<template>
+  <view class="page">
+    <view class="tab">
+      <view @tap="tabChange(0)" class="tab-item">
+        <view :class="{tab-title-active: index === 0}" class="tab-title">进行中</view>
+        <view :class="{tab-line-active: index === 0}" class="tab-line"></view>
+      </view>
+      <view @tap="tabChange(1)" class="tab-item">
+        <view :class="{tab-title-active: index === 1}" class="tab-title">已完成</view>
+        <view :class="{tab-line-active: index === 1}" class="tab-line"></view>
+      </view>
+      <view @tap="tabChange(2)" class="tab-item">
+        <view :class="{tab-title-active: index === 2}" class="tab-title">设置</view>
+        <view :class="{tab-line-active: index === 2}" class="tab-line"></view>
+      </view>
+    </view>
+    <view wx:if="{{index===0}}" class="card margin-top-24">
+      <view @tap="handleItemTap({{task.id}})" wx:for="{{taskList}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
+        <checkbox-group data-id="{{task.id}}" @change="check">
+          <checkbox @tap.stop="emptyFunction" data-id="{{task.id}}" value="{{task.id}}" checked="{{task.done === 1}}" />
+        </checkbox-group>
+        <view class="task-item-main">
+          <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
+          <view class="task-item-meta">
+            <label wx:if="{{task.user.name}}" class="task-item-label">{{task.user.name}}</label>
+            <label :class="{error:task.expired}" class="task-item-label">
+              <text class="ht-icon ht-clock-outline"></text>
+              {{task.deadlineLabel}}
+            </label>
+            <text wx:for="{{task.tags}}" wx:key="index" wx:for-item="tag" class="tag margin-right-24" style="background: {{tag.color}}">{{tag.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{index===1}}" class="card margin-top-24">
+      <view wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
+        <checkbox disabled="true" checked="true" />
+        <view class="task-item-main">
+          <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
+          <view class="task-item-meta">
+            <label class="task-item-label">{{task.user.name}}</label>
+            <label class="task-item-label">
+              <text class="ht-icon ht-clock-outline"></text>
+              {{wxsDate.format(task.done_at)}} 完成
+            </label>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{index===2}}" class="card margin-top-24">设置</view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import date from 'utils/date'
+import wxsDate from '../wxs/date.wxs'
+import taskEvent from '@/common/constant/taskEvent'
+import { api } from '@/config'
+export default class Tasks extends BasePage {
+  config = {
+    navigationBarTitleText: '',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      'wxc-elip': '../../packages/@minui/wxc-elip/dist/index',
+      'wxc-abnor': '../../packages/@minui/wxc-abnor/dist/index'
+    }
+  }
+
+  wxs = {
+    wxsDate
+  }
+
+  data = {
+    index: 0,
+    project: {
+      id: 0,
+      name: ''
+    },
+    list: [],
+    doneList: [],
+    page: {
+      page: 0,
+      total: 0,
+      size: 10
+    }
+  }
+
+  computed = {
+    taskList() {
+      let list = []
+      for (const task of this.list) {
+        task.deadlineLabel = date.format(task.deadline)
+        if (date.ltToday(task.deadline)) {
+          task.expired = true
+        }
+        list.push(task)
+      }
+      return list
+    }
+  }
+
+  methods = {
+    tabChange(index = 0) {
+      this.index = Number(index)
+      if (this.index === 1 && this.doneList.length === 0) {
+        this.getDoneList()
+      }
+    },
+    check(e) {
+      let id = e.target.dataset.id
+      let task = {}
+      let event = {}
+      event.user_id = this.userId
+      event.task_id = id
+      if (e.detail.value.length === 0) {
+        task.done = 0
+        event.type = taskEvent.reopen
+        event.event = taskEvent.reopenText
+      } else {
+        task.done = 1
+        event.type = taskEvent.done
+        event.event = taskEvent.doneText
+      }
+      this.updateTask(id, task, event)
+    }
+  }
+
+  events = {
+  }
+
+  onLoad(option) {
+    this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
+    this.project.id = option.id
+    this.project.name = option.name
+    wepy.setNavigationBarTitle({ title: `${option.name}` })
+    this.getList()
+  }
+
+  onPullDownRefresh() {
+    wepy.stopPullDownRefresh()
+  }
+
+  async getList() {
+    const result = await this.request(api.task.list.method, api.task.list.url, {
+      projectId: this.project.id,
+      done: 0
+    })
+    this.list = result.data
+    this.$apply()
+  }
+
+  async getDoneList() {
+    const result = await this.request(api.task.page.method, api.task.page.url, {
+      projectId: this.project.id,
+      done: 1,
+      page: this.page.page + 1,
+      size: this.page.size
+    })
+    this.page.total = result.data.count
+    if (this.page.total > this.page.page * this.page.size) {
+      this.page.page++
+    }
+    this.doneList = this.doneList.concat(result.data.rows)
+    this.$apply()
+  }
+
+  async updateTask(id, task, event) {
+    const result = await this.request(api.task.update.method, api.task.update.url.replace(':id', id), {
+      task,
+      event
+    })
+    if (result.code !== 0) {
+      this.showToast(result.message)
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+
+.tab
+  display flex
+  background-color #fff
+  &-item
+    flex 1
+    overflow hidden
+    white-space nowrap
+  &-title
+    text-align center
+    padding 12rpx 0
+    &-active
+      color $color-primary
+  &-line
+    height 4rpx
+    &-active
+      background-color $color-primary
+.panel
+  background $color-background
+
+</style>
