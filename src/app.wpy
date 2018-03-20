@@ -10,6 +10,7 @@ export default class extends wepy.app {
       'pages/me',
       'pages/projects',
       'pages/team',
+      'pages/member',
       'pages/switchTeam',
       'pages/bind',
       'pages/register'

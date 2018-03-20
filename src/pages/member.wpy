@@ -1,0 +1,48 @@
+<template>
+  <tasklist></tasklist>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import TaskList from '@/components/taskList'
+export default class Member extends BasePage {
+  config = {
+    navigationBarTitleText: '任务',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      'wxc-elip': '../../packages/@minui/wxc-elip/dist/index'
+    }
+  }
+
+  components = {
+    tasklist: TaskList
+  }
+
+  data = {
+  }
+
+  methods = {
+  }
+
+  events = {
+    'user-task-list-refresh-over': () => {
+      wepy.stopPullDownRefresh()
+    }
+  }
+
+  onLoad(option) {
+    this.user = this.store().user
+    wepy.setNavigationBarTitle({ title: `${option.name}的任务` })
+    this.$broadcast('user-task-list-load', option.id)
+  }
+
+  onPullDownRefresh() {
+    this.$broadcast('user-task-list-refresh')
+  }
+}
+</script>
+
+
+<style>
+</style>
