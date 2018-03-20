@@ -1,0 +1,231 @@
+<template>
+  <view class="page">
+    <view wx:for="{{groupList}}" wx:key="{{index}}" wx:for-item="item" class="card margin-top-24">
+      <view class="card-header">{{item.name}}</view>
+      <view @tap="handleItemTap({{task.id}})" wx:for="{{item.list}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
+        <checkbox-group data-id="{{task.id}}" @change="check">
+          <checkbox @tap.stop="emptyFunction" data-id="{{task.id}}" value="{{task.id}}" checked="{{task.done === 1}}" />
+        </checkbox-group>
+        <view class="task-item-main">
+          <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
+          <view class="task-item-meta">
+            <label class="task-item-label">{{task.user.name}}</label>
+            <label :class="{error:task.expired}" class="task-item-label">
+              <text class="ht-icon ht-clock-outline"></text>
+              {{task.deadlineLabel}}
+            </label>
+            <label class="task-item-label">
+              <text class="ht-icon ht-project-outline"></text>
+              {{task.project.name}}
+            </label>
+            <text wx:for="{{task.tags}}" wx:key="index" wx:for-item="tag" class="tag margin-right-24" style="background: {{tag.color}}">{{tag.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="card done-list">
+      <view @tap="toggleDoneList" class="card-header-link" hover="true" hover-class="view-light-hover">{{doneListHeader}}</view>
+      <view wx:if="{{visable}}" wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
+        <checkbox disabled="{{true}}" checked="{{true}}" />
+        <view class="task-item-main">
+          <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
+          <view class="task-item-meta">
+            <label class="task-item-label">{{task.user.name}}</label>
+            <label class="task-item-label">
+              <text class="ht-icon ht-clock-outline"></text>
+              {{wxsDate.format(task.done_at)}} 完成
+            </label>
+            <label class="task-item-label">
+              <text class="ht-icon ht-project-outline"></text>
+              {{task.project.name}}
+            </label>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{loadMoreVisable}}" @tap="loadMore" class="card-header-link center" hover="true" hover-class="view-light-hover">点击加载更多</view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import HttpMixin from '@/mixins/http'
+import StoreMixin from '@/mixins/store'
+import ToastMixin from '@/mixins/toast'
+import date from 'utils/date'
+import wxsDate from '../wxs/date.wxs'
+import taskEvent from '@/common/constant/taskEvent'
+import { api } from '@/config'
+export default class TaskList extends wepy.component {
+  mixins = [HttpMixin, StoreMixin, ToastMixin]
+
+  wxs = {
+    wxsDate
+  }
+
+  data = {
+    userId: 0,
+    list: [],
+    doneList: [],
+    visable: false,
+    page: {
+      page: 0,
+      total: 0,
+      size: 10
+    }
+  }
+
+  computed = {
+    doneListHeader() {
+      return this.visable ? '隐藏已完成的任务' : '查看已完成的任务'
+    },
+    loadMoreVisable() {
+      if (!this.visable) {
+        return false
+      } else {
+        return this.page.total > this.page.page * this.page.size
+      }
+    },
+    groupList() {
+      let list = []
+      let today = []
+      let next = []
+      let later = []
+      for (const task of this.list) {
+        task.deadlineLabel = date.format(task.deadline)
+        if (!task.deadline) {
+          later.push(task)
+          continue
+        }
+        if (date.ltToday(task.deadline)) {
+          task.expired = true
+          today.push(task)
+          continue
+        }
+        if (date.eqToday(task.deadline)) {
+          today.push(task)
+          continue
+        }
+        if (date.lteNextSunday(task.deadline)) {
+          next.push(task)
+          continue
+        }
+        later.push(task)
+      }
+      if (today.length !== 0) {
+        list.push({ name: `今天(${today.length})`, list: today })
+      }
+      if (next.length !== 0) {
+        list.push({ name: `接下来(${next.length})`, list: next })
+      }
+      if (later.length !== 0) {
+        list.push({ name: `以后(${later.length})`, list: later })
+      }
+      return list
+    }
+  }
+
+  methods = {
+    emptyFunction() { },
+    handleItemTap(id) {
+      console.log('item click:', id)
+    },
+    check(e) {
+      let id = e.target.dataset.id
+      let task = {}
+      let event = {}
+      event.user_id = this.userId
+      event.task_id = id
+      if (e.detail.value.length === 0) {
+        console.log('uncheck task id: ', id)
+        task.done = 0
+        event.type = taskEvent.reopen
+        event.event = taskEvent.reopenText
+      } else {
+        console.log('check task id: ', id)
+        task.done = 1
+        event.type = taskEvent.done
+        event.event = taskEvent.doneText
+      }
+      this.updateTask(id, task, event)
+    },
+    toggleDoneList() {
+      if (this.visable) {
+        this.visable = false
+      } else {
+        this.visable = true
+        if (this.doneList.length === 0) {
+          this.getDoneList()
+        }
+      }
+    },
+    loadMore() {
+      this.getDoneList()
+    }
+  }
+
+  events = {
+    'user-task-list-load': (userId) => {
+      this.userId = userId
+      this.getList()
+    },
+    'user-task-list-refresh': () => {
+      this.doneList = []
+      this.visable = false
+      this.page = {
+        page: 0,
+        total: 0,
+        size: 10
+      }
+      this.getList().then(() => {
+        this.$emit('user-task-list-refresh-over')
+      })
+    }
+  }
+
+  async getList() {
+    const result = await this.request(api.task.list.method, api.task.list.url, {
+      userId: this.userId,
+      done: 0
+    })
+    this.list = result.data
+    this.$apply()
+  }
+
+  async getDoneList() {
+    const result = await this.request(api.task.page.method, api.task.page.url, {
+      userId: this.userId,
+      done: 1,
+      page: this.page.page + 1,
+      size: this.page.size
+    })
+    this.page.total = result.data.count
+    if (this.page.total > this.page.page * this.page.size) {
+      this.page.page++
+    }
+    this.doneList = this.doneList.concat(result.data.rows)
+    this.$apply()
+  }
+
+  async updateTask(id, task, event) {
+    const result = await this.request(api.task.update.method, api.task.update.url.replace(':id', id), {
+      task,
+      event
+    })
+    if (result.code !== 0) {
+      this.showToast(result.message)
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+
+.card-header-link
+  color $color-primary
+  font-size 28rpx
+  padding 16rpx
+.done-list
+  margin 32rpx 0 64rpx
+</style>
