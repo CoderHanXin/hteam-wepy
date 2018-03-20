@@ -1,25 +1,71 @@
 <template>
-  <view>Projects</view>
+  <view class="page">
+    <view class="card margin-top-24">
+      <view @tap="handleItemTap({{item}})" wx:for="{{list}}" wx:key="{{index}}" wx:for-item="item" class="project-item" hover="{{true}}" hover-class="view-light-hover">
+        <view class="project-icon">
+          <text class="ht-icon ht-project"></text>
+        </view>
+        <view class="project-title">{{item.name}}</view>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
-// import wepy from 'wepy'
+import wepy from 'wepy'
 import BasePage from 'BasePage'
+import { api } from '@/config'
 export default class Projects extends BasePage {
   config = {
-    navigationBarTitleText: '项目'
+    navigationBarTitleText: '项目',
+    enablePullDownRefresh: true
   }
 
   data = {
+    list: []
+  }
+
+  methods = {
+    handleItemTap(item) {
+      console.log(item)
+    }
   }
 
   onLoad() {
     this.user = this.store().user
     this.currentTeam = this.store().currentTeam
+    this.getList()
+  }
+
+  onPullDownRefresh() {
+    this.getList().then(() => {
+      wepy.stopPullDownRefresh()
+    })
+  }
+
+  async getList() {
+    const result = await this.request(api.project.list.method, api.project.list.url, {
+      teamId: this.currentTeam.id,
+      archived: 0
+    })
+    this.list = result.data
+    this.$apply()
   }
 }
 </script>
 
-<style>
+<style lang="stylus">
+@import '../common/assets/style/variable'
 
+.project-item
+  display flex
+  align-items center
+  padding 16rpx 0
+  border-bottom 1rpx solid $color-divider
+.project-icon
+  color $color-primary
+  padding 0 24rpx
+  font-size 36rpx
+.project-title
+  color $color-text
 </style>
