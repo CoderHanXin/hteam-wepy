@@ -1,22 +1,98 @@
 <template>
-  <view>Team</view>
+  <view class="page">
+    <view class="card margin-top-24">
+      <view @tap="handleItemTap({{item}})" wx:for="{{allUsers}}" wx:key="{{index}}" wx:for-item="item" class="member">
+        <view class="member-avatar" style="background:{{wxsUtils.avatarColor(item.color)}}">
+          <text>{{wxsUtils.avatarName(item.name)}}</text>
+        </view>
+        <view class="member-info">
+          <view>
+            <text class="member-name">{{item.name}}</text>
+            <text class="member-role">{{item.team_user.role_name}}</text>
+          </view>
+          <view>
+            <text class="member-phone">{{item.phone ? item.phone : '未填写电话'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
-// import wepy from 'wepy'
+import wepy from 'wepy'
 import BasePage from 'BasePage'
+import wxsUtils from '../wxs/utils.wxs'
+import { api } from '@/config'
 export default class Team extends BasePage {
   config = {
     navigationBarTitleText: '团队'
   }
 
+  wxs = {
+    wxsUtils
+  }
+
+  data = {
+    allUsers: []
+  }
+
+  methods = {
+    handleItemTap(item) {
+      if (item.id === this.user.id) {
+        wepy.switchTab({
+          url: 'me'
+        })
+      } else {
+        wepy.navigateTo({
+          url: `memberTasks?id=${item.id}&name=${item.name}`
+        })
+      }
+    }
+  }
+
   onLoad() {
     this.user = this.store().user
     this.currentTeam = this.store().currentTeam
+    this.getAllUsersAndGroups()
+  }
+
+  async getAllUsersAndGroups() {
+    const result = await this.request(api.user.all.method, api.user.all.url, {
+      teamId: this.currentTeam.id,
+      status: 1
+    })
+    this.allUsers = result.data.users
+    this.$apply()
   }
 }
 </script>
 
-<style>
+<style lang="stylus">
+@import '../common/assets/style/variable'
 
+.member
+  display flex
+  align-items center
+  padding 16rpx
+  border-bottom 1rpx solid $color-divider
+  &-avatar
+    display flex
+    align-items center
+    justify-content center
+    width 80rpx
+    height 80rpx
+    margin 0 24rpx
+    color #fff
+    font-size 24rpx
+    border-radius 50%
+  &-info
+    flex 1
+  &-name
+    padding-right 24rpx
+    color $color-text
+    font-size 36rpx
+  &-role
+    color $color-text-prompt
+    font-size 28rpx
 </style>

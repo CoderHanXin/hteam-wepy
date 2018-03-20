@@ -1,0 +1,12 @@
+var avatarName = function(name) {
+  return name.slice(-2)
+}
+
+var avatarColor = function(color) {
+  return color ? color : '#2d8cf0'
+}
+
+module.exports = {
+  avatarName: avatarName,
+  avatarColor: avatarColor
+}

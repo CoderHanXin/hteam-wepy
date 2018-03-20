@@ -20,6 +20,10 @@ const api = {
     show: {
       method: 'GET',
       url: '/api/account/show'
+    },
+    all: {
+      method: 'GET',
+      url: '/api/user'
     }
   },
   team: {
