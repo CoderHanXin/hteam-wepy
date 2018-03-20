@@ -11,7 +11,8 @@ export default class Member extends BasePage {
     navigationBarTitleText: '任务',
     enablePullDownRefresh: true,
     usingComponents: {
-      'wxc-elip': '../../packages/@minui/wxc-elip/dist/index'
+      'wxc-elip': '../../packages/@minui/wxc-elip/dist/index',
+      'wxc-abnor': '../../packages/@minui/wxc-abnor/dist/index'
     }
   }
 

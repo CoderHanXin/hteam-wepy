@@ -23,6 +23,9 @@
         </view>
       </view>
     </view>
+    <block wx:if="{{groupList.length === 0}}">
+      <wxc-abnor type="DATA" title="没有正在进行的任务"></wxc-abnor>
+    </block>
     <view class="card done-list">
       <view @tap="toggleDoneList" class="card-header-link" hover="true" hover-class="view-light-hover">{{doneListHeader}}</view>
       <view wx:if="{{visable}}" wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
@@ -225,7 +228,7 @@ export default class TaskList extends wepy.component {
 .card-header-link
   color $color-primary
   font-size 28rpx
-  padding 16rpx
+  padding 16rpx 24rpx
 .done-list
   margin 32rpx 0 64rpx
 </style>
