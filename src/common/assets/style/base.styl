@@ -6,6 +6,14 @@
 .card
   position relative
   background #fff
+  &-header
+    color $color-text-secondary
+    font-size 28rpx
+    font-weight 700
+    padding 16rpx
+.card-shadow
+  position relative
+  background #fff
   border 1rpx solid #e0e0e0
   border-radius 7rpx
   box-shadow 0 0 6rpx rgba(0, 0, 0, 0.15)
@@ -19,7 +27,7 @@
 .task-item
   display flex
   align-items start
-  padding 20rpx
+  padding 16rpx 24rpx
   border-bottom 1rpx solid $color-divider
   &-main
     flex 1
