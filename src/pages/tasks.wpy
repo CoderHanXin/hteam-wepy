@@ -48,6 +48,10 @@
       </view>
     </view>
     <view wx:if="{{index===2}}" class="card margin-top-24">设置</view>
+    <block wx:if="{{noData}}">
+      <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
+    </block>
+    <view wx:if="{{index===0}}" hover="{{true}}" hover-class="view-btn-hover" class="view-btn">添加任务</view>
   </view>
 </template>
 
@@ -98,6 +102,23 @@ export default class Tasks extends BasePage {
         list.push(task)
       }
       return list
+    },
+    noData() {
+      if (this.index === 0) {
+        return this.list.length === 0
+      }
+      if (this.index === 1) {
+        return this.doneList.length === 0
+      }
+      return false
+    },
+    noDataTitle() {
+      if (this.index === 0) {
+        return '没有正在进行的任务'
+      }
+      if (this.index === 1) {
+        return '没有已经完成的任务'
+      }
     }
   }
 
@@ -182,6 +203,21 @@ export default class Tasks extends BasePage {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
+.view-btn
+  position absolute
+  bottom 32rpx
+  left 50%
+  padding 8rpx 0
+  margin-left -90rpx
+  width 180rpx
+  text-align center
+  font-size 28rpx
+  border-radius 30rpx
+  color #fff
+  background-color $color-primary
+  z-index 10
+.view-btn-hover
+  background-color $color-primary-hover
 .tab
   display flex
   background-color #fff
@@ -200,5 +236,4 @@ export default class Tasks extends BasePage {
       background-color $color-primary
 .panel
   background $color-background
-
 </style>
