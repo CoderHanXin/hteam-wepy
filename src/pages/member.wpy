@@ -34,8 +34,9 @@ export default class Member extends BasePage {
 
   onLoad(option) {
     this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
     wepy.setNavigationBarTitle({ title: `${option.name}的任务` })
-    this.$broadcast('user-task-list-load', option.id)
+    this.$broadcast('user-task-list-load', this.currentTeam.id, option.id)
   }
 
   onPullDownRefresh() {

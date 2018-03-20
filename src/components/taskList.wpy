@@ -29,7 +29,7 @@
     <view class="card done-list">
       <view @tap="toggleDoneList" class="card-header-link" hover="true" hover-class="view-light-hover">{{doneListHeader}}</view>
       <view wx:if="{{visable}}" wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
-        <checkbox disabled="{{true}}" checked="{{true}}" />
+        <checkbox disabled="true" checked="true" />
         <view class="task-item-main">
           <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
           <view class="task-item-meta">
@@ -68,6 +68,7 @@ export default class TaskList extends wepy.component {
 
   data = {
     userId: 0,
+    teamId: 0,
     list: [],
     doneList: [],
     visable: false,
@@ -168,7 +169,8 @@ export default class TaskList extends wepy.component {
   }
 
   events = {
-    'user-task-list-load': (userId) => {
+    'user-task-list-load': (teamId, userId) => {
+      this.teamId = teamId
       this.userId = userId
       this.getList()
     },
@@ -188,6 +190,7 @@ export default class TaskList extends wepy.component {
 
   async getList() {
     const result = await this.request(api.task.list.method, api.task.list.url, {
+      teamId: this.teamId,
       userId: this.userId,
       done: 0
     })
@@ -197,6 +200,7 @@ export default class TaskList extends wepy.component {
 
   async getDoneList() {
     const result = await this.request(api.task.page.method, api.task.page.url, {
+      teamId: this.teamId,
       userId: this.userId,
       done: 1,
       page: this.page.page + 1,

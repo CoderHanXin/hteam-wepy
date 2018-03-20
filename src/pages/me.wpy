@@ -35,7 +35,7 @@ export default class Me extends BasePage {
   onLoad() {
     this.user = this.store().user
     this.currentTeam = this.store().currentTeam
-    this.$broadcast('user-task-list-load', this.user.id)
+    this.$broadcast('user-task-list-load', this.currentTeam.id, this.user.id)
   }
 
   onPullDownRefresh() {
