@@ -72,28 +72,4 @@ export default class Team extends BasePage {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
-.member
-  display flex
-  align-items center
-  padding 16rpx
-  border-bottom 1rpx solid $color-divider
-  &-avatar
-    display flex
-    align-items center
-    justify-content center
-    width 80rpx
-    height 80rpx
-    margin 0 24rpx
-    color #fff
-    font-size 24rpx
-    border-radius 50%
-  &-info
-    flex 1
-  &-name
-    padding-right 24rpx
-    color $color-text
-    font-size 36rpx
-  &-role
-    color $color-text-prompt
-    font-size 28rpx
 </style>

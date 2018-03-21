@@ -1,7 +1,7 @@
 @import './variable'
 
 /* margin
-   ========================================================================== */
+========================================================================== */
 .margin-top-16
   margin-top 16rpx
 .margin-top-24
@@ -21,23 +21,23 @@
 .margin-right-32
   margin-right 32rpx
 /* padding
-   ========================================================================== */
+========================================================================== */
 .padding-8
   padding 8rpx
 .padding-16
   padding 16rpx
 /* border
-   ========================================================================== */
+========================================================================== */
 .border-top
   border-top 1px solid $color-divider
 .border-bottom
   border-bottom 1px solid $color-divider
 /* align
-   ========================================================================== */
+========================================================================== */
 .center
   text-align center
 /* flex
-   ========================================================================== */
+========================================================================== */
 .flex-column
   position relative
   display flex
@@ -63,7 +63,7 @@
   position relative
   flex 4
 /* color
-   ========================================================================== */
+========================================================================== */
 .primary
   color $color-primary
 .success
@@ -73,7 +73,7 @@
 .error
   color $color-error
 /* button
-   ========================================================================== */
+========================================================================== */
 .btn-primary
   color #fff
   background-color $color-primary
@@ -82,7 +82,18 @@
   background-color $color-primary-hover
   border-color $color-primary-hover
 /* common
-   ========================================================================== */
+========================================================================== */
+.view-btn-bottom
+  position fixed
+  bottom 0
+  left 0
+  padding 24rpx 0
+  width 100%
+  text-align center
+  color $color-primary
+  background-color #fff
+  border-top 1rpx solid $color-divider
+  z-index 10
 .view-light-hover
   background-color $color-backgorund-light-hover
 .text-link
@@ -91,7 +102,7 @@
   display block
   padding 16rpx
 /* page cover
-   ========================================================================== */
+========================================================================== */
 .page-cover
   position absolute
   top 100%
@@ -100,12 +111,15 @@
   z-index 100
   background-color #fff
   overflow hidden
-  transition all 0.5s ease-in-out 0.1s
+  transition all 0.5s ease-in-out
 .page-cover-show
   top 0
   height 100%
 .toolbar
   display flex
+  align-items center
   justify-content space-between
+  padding 16rpx 24rpx
   background-color #fff
-  border-bottom 1px solid $color-divider
+  border-top 1rpx solid $color-divider
+  border-bottom 1rpx solid $color-divider

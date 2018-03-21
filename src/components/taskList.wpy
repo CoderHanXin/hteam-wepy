@@ -232,7 +232,6 @@ export default class TaskList extends wepy.component {
 
 .card-header-link
   color $color-primary
-  font-size 28rpx
   padding 16rpx 24rpx
 .done-list
   margin 32rpx 0 64rpx

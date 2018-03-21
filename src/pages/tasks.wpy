@@ -47,13 +47,13 @@
         </view>
       </view>
     </view>
-    <view wx:if="{{index===2}}" class="margin-top-24">
+    <view wx:if="{{index===2}}" class="margin-top-24" hidden="{{visable}}">
       <form @submit="submit">
         <view class="project-name">
           <input value="{{project.name}}" name="name" maxlength="20" type="text" placeholder="项目名称" />
         </view>
         <view class="project-desc">
-          <textarea value="{{project.desc}}" name="desc" maxlength="200" placeholder="简单描述项目" class="project-desc-textarea" />
+          <textarea value="{{project.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="简单描述项目" class="project-desc-textarea" />
         </view>
         <view class="project-btn">
           <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存设置</button>
@@ -63,9 +63,9 @@
     </view>
     <view :class="{page-cover-show: visable}" class="page-cover">
       <view class="toolbar">
-        <text @tap="handleMembersCancel" class="text-link text-button">取消</text>
+        <text @tap="handleMembersCancel" class="text-link">取消</text>
         <text>选择成员</text>
-        <text @tap="handleMembersOk" class="text-link text-button">确定</text>
+        <text @tap="handleMembersOk" class="text-link">确定</text>
       </view>
       <view>
         <checkbox-group>
@@ -79,11 +79,10 @@
         </checkbox-group>
       </view>
     </view>
-  </view>
-  <block wx:if="{{noData}}">
-    <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
-  </block>
-  <view wx:if="{{index===0}}" @tap="showTaskAdd" hover="{{true}}" hover-class="view-btn-hover" class="view-btn">添加任务</view>
+    <block wx:if="{{noData}}">
+      <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
+    </block>
+    <view wx:if="{{index===0}}" @tap="showTaskAdd" class="view-btn-bottom" hover-class="view-light-hover">添加任务</view>
   </view>
 </template>
 
@@ -359,21 +358,6 @@ export default class Tasks extends BasePage {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
-.view-btn
-  position absolute
-  bottom 32rpx
-  left 50%
-  padding 8rpx 0
-  margin-left -90rpx
-  width 180rpx
-  text-align center
-  font-size 28rpx
-  border-radius 30rpx
-  color #fff
-  background $color-primary
-  z-index 10
-.view-btn-hover
-  background $color-primary-hover
 .tab
   display flex
   background-color #fff
@@ -407,22 +391,5 @@ export default class Tasks extends BasePage {
   width 100%
 .project-btn
   margin 64rpx 24rpx 0 24rpx
-.member
-  display flex
-  align-items center
-  padding 16rpx 24rpx
-  border-bottom 1rpx solid $color-divider
-  &-avatar
-    display flex
-    align-items center
-    justify-content center
-    width 60rpx
-    height 60rpx
-    margin-right 24rpx
-    color #fff
-    font-size 20rpx
-    border-radius 50%
-  &-name
-    color $color-text
-    font-size 32rpx
+
 </style>

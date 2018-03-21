@@ -62,12 +62,13 @@ export default class Projects extends BasePage {
 .project-item
   display flex
   align-items center
-  padding 16rpx 0
+  padding 16rpx 24rpx
   border-bottom 1rpx solid $color-divider
 .project-icon
   color $color-primary
-  padding 0 24rpx
-  font-size 36rpx
+  margin-right 24rpx
+  font-size 40rpx
 .project-title
   color $color-text
+  font-size 36rpx
 </style>
