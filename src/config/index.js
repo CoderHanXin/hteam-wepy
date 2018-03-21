@@ -1,6 +1,6 @@
 const domain =
   process.env.NODE_ENV === 'production'
-    ? 'http://api.hteam.url.com'
+    ? 'https://api.hteam.url.com'
     : 'http://127.0.0.1:7001'
 
 const api = {

@@ -15,12 +15,12 @@
       </view>
     </view>
     <view :class="{page-cover-show: visable}" class="page-cover">
-      <view class="account-toolbar">
-        <text @tap="handleCancel" class="text-link text-button">取消</text>
-        <text @tap="handleCreate" class="text-link text-button">创建</text>
+      <view class="toolbar">
+        <text @tap="handleCancel" class="text-link">取消</text>
+        <text @tap="handleCreate" class="text-link">创建</text>
       </view>
       <view class="team-input">
-        <input value="{{inputValue}}" @input="inputChange" maxlength="20" type="text" placeholder="例如：研发团队" />
+        <input value="{{inputValue}}" @input="inputChange" maxlength="20" focus="{{inputFocus}}" type="text" placeholder="例如：研发团队" />
       </view>
     </view>
   </view>
@@ -39,6 +39,7 @@ export default class SwitchTeam extends BasePage {
     visable: false,
     teams: [],
     inputValue: '',
+    inputFocus: false,
     name: ''
   }
 
@@ -55,10 +56,12 @@ export default class SwitchTeam extends BasePage {
     },
     showCreate() {
       this.inputValue = ''
+      this.inputFocus = true
       this.visable = true
     },
     handleCancel() {
       this.visable = false
+      this.inputFocus = false
       this.name = ''
     },
     async handleCreate() {
@@ -87,8 +90,8 @@ export default class SwitchTeam extends BasePage {
 @import '../common/assets/style/account'
 
 .team-input
-  padding 16rpx
+  padding 24rpx
+  text-align center
   background #fff
   border 1rpx solid $color-divider
-  box-shadow 0 0 6rpx rgba(0, 0, 0, 0.15)
 </style>
