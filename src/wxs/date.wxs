@@ -6,6 +6,7 @@ var format = function(t) {
   var month = d.getMonth() + 1
   var day = d.getDate()
   month = month < 10 ? '0' + month : month
+  day = day < 10 ? '0' + day : day
   return nowYear === year
     ? [month, day].join('-')
     : [year, month, day].join('-')
