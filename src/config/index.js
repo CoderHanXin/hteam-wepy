@@ -36,6 +36,22 @@ const api = {
     list: {
       method: 'GET',
       url: '/api/project'
+    },
+    show: {
+      method: 'GET',
+      url: '/api/project/:id'
+    },
+    create: {
+      method: 'POST',
+      url: '/api/project'
+    },
+    update: {
+      method: 'PUT',
+      url: '/api/project/:id'
+    },
+    delete: {
+      method: 'DELETE',
+      url: '/api/project/:id'
     }
   },
   task: {
