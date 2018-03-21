@@ -58,8 +58,9 @@ export default class extends wepy.app {
 
   globalData = {
     user: {},
-    teams: [],
-    currentTeam: {}
+    currentTeam: {},
+    allUsers: [],
+    teams: []
   }
 
   constructor() {
@@ -107,6 +108,4 @@ export default class extends wepy.app {
 
 <style lang="stylus">
 @import './common/assets/style'
-
-
 </style>
