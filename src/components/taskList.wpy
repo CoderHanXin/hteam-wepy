@@ -133,6 +133,7 @@ export default class TaskList extends wepy.component {
     emptyFunction() { },
     handleItemTap(id) {
       console.log('item click:', id)
+      this.showToast('开发中')
     },
     check(e) {
       let id = e.target.dataset.id
