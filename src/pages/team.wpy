@@ -63,6 +63,7 @@ export default class Team extends BasePage {
       status: 1
     })
     this.allUsers = result.data.users
+    this.store().allUsers = this.allUsers
     this.$apply()
   }
 }

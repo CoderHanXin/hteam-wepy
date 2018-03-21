@@ -47,11 +47,43 @@
         </view>
       </view>
     </view>
-    <view wx:if="{{index===2}}" class="card margin-top-24">设置</view>
-    <block wx:if="{{noData}}">
-      <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
-    </block>
-    <view wx:if="{{index===0}}" hover="{{true}}" hover-class="view-btn-hover" class="view-btn">添加任务</view>
+    <view wx:if="{{index===2}}" class="margin-top-24">
+      <form @submit="submit">
+        <view class="project-name">
+          <input value="{{project.name}}" name="name" maxlength="20" type="text" placeholder="项目名称" />
+        </view>
+        <view class="project-desc">
+          <textarea value="{{project.desc}}" name="desc" maxlength="200" placeholder="简单描述项目" class="project-desc-textarea" />
+        </view>
+        <view class="project-btn">
+          <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存设置</button>
+          <button @tap="showMembers" class="primary margin-top-24">修改项目成员</button>
+        </view>
+      </form>
+    </view>
+    <view :class="{page-cover-show: visable}" class="page-cover">
+      <view class="toolbar">
+        <text @tap="handleMembersCancel" class="text-link text-button">取消</text>
+        <text>选择成员</text>
+        <text @tap="handleMembersOk" class="text-link text-button">确定</text>
+      </view>
+      <view>
+        <checkbox-group>
+          <view @tap="handleMemberItemTap({{index}}, {{item.checked}})" wx:for="{{members}}" wx:key="{{index}}" wx:for-item="item" class="member">
+            <checkbox @tap.stop="handleMemberCheck({{index}}, {{item.checked}})" value="{{item.id}}" checked="{{item.checked}}" />
+            <view class="member-avatar" style="background:{{wxsUtils.avatarColor(item.color)}}">
+              <text>{{wxsUtils.avatarName(item.name)}}</text>
+            </view>
+            <text class="member-name">{{item.name}}</text>
+          </view>
+        </checkbox-group>
+      </view>
+    </view>
+  </view>
+  <block wx:if="{{noData}}">
+    <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
+  </block>
+  <view wx:if="{{index===0}}" @tap="showTaskAdd" hover="{{true}}" hover-class="view-btn-hover" class="view-btn">添加任务</view>
   </view>
 </template>
 
@@ -60,6 +92,7 @@ import wepy from 'wepy'
 import BasePage from 'BasePage'
 import date from 'utils/date'
 import wxsDate from '../wxs/date.wxs'
+import wxsUtils from '../wxs/utils.wxs'
 import taskEvent from '@/common/constant/taskEvent'
 import { api } from '@/config'
 export default class Tasks extends BasePage {
@@ -73,14 +106,16 @@ export default class Tasks extends BasePage {
   }
 
   wxs = {
-    wxsDate
+    wxsDate,
+    wxsUtils
   }
 
   data = {
     index: 0,
     project: {
       id: 0,
-      name: ''
+      name: '',
+      users: []
     },
     list: [],
     doneList: [],
@@ -88,7 +123,9 @@ export default class Tasks extends BasePage {
       page: 0,
       total: 0,
       size: 10
-    }
+    },
+    visable: false,
+    members: []
   }
 
   computed = {
@@ -123,17 +160,27 @@ export default class Tasks extends BasePage {
   }
 
   methods = {
+    showTaskAdd() {
+      this.showToast('开发中')
+    },
+    handleItemTap(id) {
+      console.log('item click:', id)
+      this.showToast('开发中')
+    },
     tabChange(index = 0) {
       this.index = Number(index)
       if (this.index === 1 && this.doneList.length === 0) {
         this.getDoneList()
+      }
+      if (this.index === 2 && this.allUsers.length === 0) {
+        this.getAllUsersAndGroups()
       }
     },
     check(e) {
       let id = e.target.dataset.id
       let task = {}
       let event = {}
-      event.user_id = this.userId
+      event.user_id = this.user.id
       event.task_id = id
       if (e.detail.value.length === 0) {
         task.done = 0
@@ -145,23 +192,65 @@ export default class Tasks extends BasePage {
         event.event = taskEvent.doneText
       }
       this.updateTask(id, task, event)
-    }
-  }
-
-  events = {
+    },
+    submit(e) {
+      const { name, desc } = e.detail.value
+      if (name.trim() === '') {
+        this.showToast('请输入项目名称')
+        return
+      }
+      this.updateProject(name, desc)
+    },
+    showMembers() {
+      this.setMembers()
+      this.visable = true
+    },
+    handleMembersOk() {
+      this.updateProjectMembers()
+    },
+    handleMembersCancel() {
+      this.visable = false
+    },
+    handleMemberItemTap(index, checked) {
+      this.members[index].checked = !checked
+    },
+    handleMemberCheck(index, checked) {
+      this.members[index].checked = !checked
+    },
+    emptyFunction() { }
   }
 
   onLoad(option) {
     this.user = this.store().user
     this.currentTeam = this.store().currentTeam
+    this.allUsers = this.store().allUsers
     this.project.id = option.id
     this.project.name = option.name
     wepy.setNavigationBarTitle({ title: `${option.name}` })
     this.getList()
+    this.getProject()
   }
 
   onPullDownRefresh() {
-    wepy.stopPullDownRefresh()
+    if (this.index === 0) {
+      this.getList().then(() => {
+        wepy.stopPullDownRefresh()
+      })
+    } else if (this.index === 1) {
+      this.doneList = []
+      this.page = {
+        page: 0,
+        total: 0,
+        size: 10
+      }
+      this.getDoneList().then(() => {
+        wepy.stopPullDownRefresh()
+      })
+    } else {
+      this.getProject().then(() => {
+        wepy.stopPullDownRefresh()
+      })
+    }
   }
 
   async getList() {
@@ -170,6 +259,12 @@ export default class Tasks extends BasePage {
       done: 0
     })
     this.list = result.data
+    this.$apply()
+  }
+
+  async getProject() {
+    const result = await this.request(api.project.show.method, api.project.show.url.replace(':id', this.project.id))
+    this.project = result.data
     this.$apply()
   }
 
@@ -188,6 +283,16 @@ export default class Tasks extends BasePage {
     this.$apply()
   }
 
+  async getAllUsersAndGroups() {
+    const result = await this.request(api.user.all.method, api.user.all.url, {
+      teamId: this.currentTeam.id,
+      status: 1
+    })
+    this.allUsers = result.data.users
+    this.store().allUsers = this.allUsers
+    this.$apply()
+  }
+
   async updateTask(id, task, event) {
     const result = await this.request(api.task.update.method, api.task.update.url.replace(':id', id), {
       task,
@@ -195,6 +300,57 @@ export default class Tasks extends BasePage {
     })
     if (result.code !== 0) {
       this.showToast(result.message)
+    }
+  }
+
+  async updateProject(name, desc) {
+    const result = await this.request(api.project.update.method, api.project.update.url.replace(':id', this.project.id), {
+      project: { name, desc }
+    })
+    if (result.code === 0) {
+      this.showToast('操作成功')
+      this.index = 0
+    } else {
+      this.showToast(result.message)
+    }
+    this.project.name = name
+    this.project.desc = desc
+    this.$apply()
+  }
+
+  async updateProjectMembers() {
+    let users = []
+    let userList = []
+    for (const item of this.members) {
+      if (item.checked) {
+        users.push(item.id)
+        userList.push(item)
+      }
+    }
+    const result = await this.request(api.project.update.method, api.project.update.url.replace(':id', this.project.id), {
+      users
+    })
+    if (result.code === 0) {
+      this.showToast('操作成功')
+      this.visable = false
+      this.project.users = userList
+    } else {
+      this.showToast(result.message)
+    }
+    this.$apply()
+  }
+
+  setMembers() {
+    this.members = []
+    for (const user of this.allUsers) {
+      user.checked = false
+      for (const member of this.project.users) {
+        if (user.id === member.id) {
+          user.checked = true
+          continue
+        }
+      }
+      this.members.push(user)
     }
   }
 }
@@ -214,10 +370,10 @@ export default class Tasks extends BasePage {
   font-size 28rpx
   border-radius 30rpx
   color #fff
-  background-color $color-primary
+  background $color-primary
   z-index 10
 .view-btn-hover
-  background-color $color-primary-hover
+  background $color-primary-hover
 .tab
   display flex
   background-color #fff
@@ -236,4 +392,37 @@ export default class Tasks extends BasePage {
       background-color $color-primary
 .panel
   background $color-background
+.project-name
+  padding 16rpx 24rpx
+  color $color-text
+  background #fff
+  border-bottom 1px solid $color-divider
+.project-desc
+  padding 16rpx 24rpx
+  color $color-text
+  border-bottom 1px solid $color-divider
+  background #fff
+.project-desc-textarea
+  height 200rpx
+  width 100%
+.project-btn
+  margin 64rpx 24rpx 0 24rpx
+.member
+  display flex
+  align-items center
+  padding 16rpx 24rpx
+  border-bottom 1rpx solid $color-divider
+  &-avatar
+    display flex
+    align-items center
+    justify-content center
+    width 60rpx
+    height 60rpx
+    margin-right 24rpx
+    color #fff
+    font-size 20rpx
+    border-radius 50%
+  &-name
+    color $color-text
+    font-size 32rpx
 </style>
