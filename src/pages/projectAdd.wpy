@@ -1,0 +1,144 @@
+<template>
+  <view class="padding-top-24">
+    <form @submit="submit">
+      <view class="project-name">
+        <input name="name" maxlength="20" focus="true" type="text" placeholder="请输入项目名称" />
+      </view>
+      <view class="project-btn">
+        <button @tap="showMembers" class="primary">选择项目成员</button>
+        <button form-type="submit" class="btn-primary margin-top-24" hover-class="btn-primary-hover">新建项目</button>
+      </view>
+    </form>
+  </view>
+  <view :class="{page-cover-show: visable}" class="page-cover">
+    <view class="toolbar">
+      <text @tap="handleMembersCancel" class="text-button">取消</text>
+      <text>选择成员</text>
+      <text @tap="handleMembersOk" class="text-button">确定</text>
+    </view>
+    <view>
+      <checkbox-group>
+        <view @tap="handleMemberItemTap({{index}}, {{item.checked}})" wx:for="{{members}}" wx:key="{{index}}" wx:for-item="item" class="member">
+          <checkbox @tap.stop="handleMemberCheck({{index}}, {{item.checked}})" checked="{{item.checked}}" />
+          <view class="member-avatar" style="background:{{wxsUtils.avatarColor(item.color)}}">
+            <text>{{wxsUtils.avatarName(item.name)}}</text>
+          </view>
+          <text class="member-name">{{item.name}}</text>
+        </view>
+      </checkbox-group>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import wxsUtils from '../wxs/utils.wxs'
+import { api } from '@/config'
+export default class ProjectAdd extends BasePage {
+  config = {
+    navigationBarTitleText: '添加项目'
+  }
+
+  wxs = {
+    wxsUtils
+  }
+
+  data = {
+    visable: false,
+    members: []
+  }
+
+  methods = {
+    submit(e) {
+      const { name } = e.detail.value
+      if (name.trim() === '') {
+        this.showToast('请输入项目名称')
+        return
+      }
+      let users = []
+      for (const user of this.members) {
+        if (user.checked) {
+          users.push(user.id)
+        }
+      }
+      if (users.length === 0) {
+        this.showToast('请至少选择一个项目成员')
+        return
+      }
+      let project = {}
+      project.name = name
+      this.createProject(project, users)
+    },
+    showMembers() {
+      this.visable = true
+    },
+    handleMembersCancel() {
+      this.visable = false
+      this.setMembers()
+    },
+    handleMembersOk() {
+      this.visable = false
+    },
+    handleMemberCheck(index, checked) {
+      this.members[index].checked = !checked
+    },
+    handleMemberItemTap(index, checked) {
+      this.members[index].checked = !checked
+    },
+    emptyFunction() { }
+  }
+
+  async onLoad() {
+    this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
+    await this.getAllUsersAndGroups()
+    this.allUsers = this.store().allUsers
+    this.setMembers()
+  }
+
+  async createProject(project, users) {
+    const result = await this.request(api.project.create.method, api.project.create.url, {
+      teamId: this.currentTeam.id,
+      project,
+      users
+    })
+    if (result.code === 0) {
+      wepy.navigateBack({
+        delta: 1
+      })
+    } else {
+      this.showToast(result.message)
+    }
+  }
+
+  async getAllUsersAndGroups() {
+    const result = await this.request(api.user.all.method, api.user.all.url, {
+      teamId: this.currentTeam.id,
+      status: 1
+    })
+    this.allUsers = result.data.users
+    this.store().allUsers = this.allUsers
+    this.$apply()
+  }
+
+  setMembers() {
+    this.members = this.allUsers.map(user => {
+      user.checked = false
+      return user
+    })
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+
+.project-name
+  padding 24rpx
+  color $color-text
+  background #fff
+  border-bottom 1px solid $color-divider
+.project-btn
+  margin 64rpx 24rpx 0 24rpx
+</style>

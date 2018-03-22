@@ -8,6 +8,10 @@
         <view class="project-title">{{item.name}}</view>
       </view>
     </view>
+    <view @tap="showProjectAdd" class="view-btn-bottom" hover-class="view-light-hover">
+      <text class="ht-icon ht-plus margin-right-16"></text>
+      <text>新建项目</text>
+    </view>
   </view>
 </template>
 
@@ -26,6 +30,11 @@ export default class Projects extends BasePage {
   }
 
   methods = {
+    showProjectAdd() {
+      wepy.navigateTo({
+        url: `projectAdd`
+      })
+    },
     handleItemTap(item) {
       wepy.navigateTo({
         url: `tasks?id=${item.id}&name=${item.name}`
@@ -36,6 +45,9 @@ export default class Projects extends BasePage {
   onLoad() {
     this.user = this.store().user
     this.currentTeam = this.store().currentTeam
+  }
+
+  onShow() {
     this.getList()
   }
 
