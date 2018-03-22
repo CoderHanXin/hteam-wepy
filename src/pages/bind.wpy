@@ -1,27 +1,25 @@
 <template>
-  <view class="page">
-    <view class="flex-column">
-      <view class="account-up">
-        <label class="account-title">绑定 HTeam 账号</label>
+  <view class="flex-column">
+    <view class="account-up">
+      <label class="account-title">绑定 HTeam 账号</label>
+    </view>
+    <view class="account-down">
+      <view class="flex-1 padding-cross-10">
+        <button @tap="submit" hover-class="btn-primary-hover" class="account-button btn-primary">绑定</button>
       </view>
-      <view class="account-down">
-        <view class="flex-1 padding-cross-10">
-          <button @tap="submit" hover-class="btn-primary-hover" class="account-button btn-primary">绑定</button>
-        </view>
-        <view class="flex-1 flex-column flex-content-center">
-          <view>
-            <text>没有账号？</text>
-            <text @tap="gotoRegister" class="text-link">立即注册</text>
-          </view>
+      <view class="flex-1 flex-column flex-content-center">
+        <view>
+          <text>没有账号？</text>
+          <text @tap="gotoRegister" class="text-link">立即注册</text>
         </view>
       </view>
-      <view class="account-box">
-        <view class="account-item border-bottom">
-          <input class="account-input" @input="inputChangeUsername" @confirm="focusPass" confirm-type="next" maxlength="20" placeholder="用户名" type="text" focus="true" />
-        </view>
-        <view class="account-item">
-          <input class="account-input" @input="inputChangePassword" @confirm="submit" confirm-type="send" maxlength="16" placeholder="密码" focus="{{passwordFocus}}" password="true" />
-        </view>
+    </view>
+    <view class="account-box">
+      <view class="account-item border-bottom">
+        <input class="account-input" @input="inputChangeUsername" @confirm="focusPass" confirm-type="next" maxlength="20" placeholder="用户名" type="text" focus="true" />
+      </view>
+      <view class="account-item">
+        <input class="account-input" @input="inputChangePassword" @confirm="submit" confirm-type="send" maxlength="16" placeholder="密码" focus="{{passwordFocus}}" password="true" />
       </view>
     </view>
   </view>

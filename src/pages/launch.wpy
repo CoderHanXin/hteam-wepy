@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view>
     <wxc-abnor type="COUPON" image="{{launch.image}}" title="{{launch.title}}" tip="{{launch.tip}}"></wxc-abnor>
   </view>
 </template>

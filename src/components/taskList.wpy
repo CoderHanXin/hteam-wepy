@@ -1,6 +1,6 @@
 <template>
-  <view class="page">
-    <view wx:for="{{groupList}}" wx:key="{{index}}" wx:for-item="item" class="card margin-top-24">
+  <view class="padding-top-24">
+    <view wx:for="{{groupList}}" wx:key="{{index}}" wx:for-item="item" class="card" :class="{margin-top-24: index !== 0}">
       <view class="card-header">{{item.name}}</view>
       <view @tap="handleItemTap({{task.id}})" wx:for="{{item.list}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
         <checkbox-group data-id="{{task.id}}" @change="check">

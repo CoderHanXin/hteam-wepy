@@ -1,6 +1,6 @@
 <template>
-  <view class="page">
-    <view class="card margin-top-24">
+  <view class="padding-top-24">
+    <view class="card">
       <view @tap="handleItemTap({{item}})" wx:for="{{list}}" wx:key="{{index}}" wx:for-item="item" class="project-item" hover="{{true}}" hover-class="view-light-hover">
         <view class="project-icon">
           <text class="ht-icon ht-project"></text>
