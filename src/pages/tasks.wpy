@@ -174,7 +174,9 @@ export default class Tasks extends BasePage {
 
   methods = {
     showTaskAdd() {
-      this.showToast('开发中')
+      wepy.navigateTo({
+        url: `taskAdd`
+      })
     },
     handleItemTap(id) {
       console.log('item click:', id)
@@ -255,8 +257,11 @@ export default class Tasks extends BasePage {
     this.project.id = option.id
     this.project.name = option.name
     wepy.setNavigationBarTitle({ title: `${option.name}` })
-    this.getList()
     this.getProject()
+  }
+
+  onShow() {
+    this.getList()
   }
 
   onPullDownRefresh() {
@@ -299,6 +304,7 @@ export default class Tasks extends BasePage {
   async getProject() {
     const result = await this.request(api.project.show.method, api.project.show.url.replace(':id', this.project.id))
     this.project = result.data
+    this.store().currentProject = this.project
     this.$apply()
   }
 

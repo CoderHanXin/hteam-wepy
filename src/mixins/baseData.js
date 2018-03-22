@@ -4,6 +4,8 @@ export default class BaseDataMixin extends wepy.mixin {
   data = {
     user: {},
     currentTeam: {},
-    allUsers: []
+    currentProject: {},
+    allUsers: [],
+    teams: []
   }
 }

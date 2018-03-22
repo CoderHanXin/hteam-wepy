@@ -1,6 +1,11 @@
 'use strict'
 
 const moment = require('moment')
+moment.locale('zh-cn', {
+  week: {
+    dow: 1 // Monday is the first day of the week.
+  }
+})
 
 let util = {}
 
@@ -136,6 +141,10 @@ util.format = t => {
     }
   }
   return m.format('YYYY-MM-DD')
+}
+
+util.toIOSString = t => {
+  return moment(t).toISOString()
 }
 
 export default util

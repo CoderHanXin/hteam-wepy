@@ -12,6 +12,7 @@ export default class extends wepy.app {
       'pages/team',
       'pages/member',
       'pages/tasks',
+      'pages/taskAdd',
       'pages/switchTeam',
       'pages/bind',
       'pages/register'
@@ -59,6 +60,7 @@ export default class extends wepy.app {
   globalData = {
     user: {},
     currentTeam: {},
+    currentProject: {},
     allUsers: [],
     teams: []
   }

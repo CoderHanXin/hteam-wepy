@@ -1,0 +1,146 @@
+<template>
+  <form @submit="submit">
+    <view class="task-title">
+      <textarea name="title" maxlength="200" show-confirm-bar="{{false}}" placeholder="请输入任务名称" class="task-title-textarea" />
+    </view>
+    <view class="task-meta">
+      <text class="ht-icon ht-network"></text>
+      <picker range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="assigneeChange" class="task-meta-picker">
+        <text wx:if="{{memberIndex}}">{{members[memberIndex].name}}</text>
+        <text wx:if="{{!memberIndex}}" class="task-meta-placeholder">选择负责人</text>
+      </picker>
+      <text @tap="clearAssignee" wx:if="{{memberIndex}}" class="ht-icon ht-close"></text>
+    </view>
+    <view class="task-meta">
+      <text class="ht-icon ht-clock-outline"></text>
+      <picker mode="date" value="{{deadline}}" @change="deadlineChange" class="task-meta-picker">
+        <text wx:if="{{deadline}}">{{deadlineLabel}}</text>
+        <text wx:if="{{!deadline}}" class="task-meta-placeholder">设置截至时间</text>
+      </picker>
+      <text @tap="clearDeadline" wx:if="{{deadline}}" class="ht-icon ht-close"></text>
+    </view>
+    <view class="task-btn">
+      <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存</button>
+    </view>
+  </form>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import date from 'utils/date'
+import taskEvent from '@/common/constant/taskEvent'
+import { api } from '@/config'
+export default class TaskAdd extends BasePage {
+  config = {
+    navigationBarTitleText: '添加任务'
+  }
+
+  data = {
+    members: [],
+    memberIndex: null,
+    deadline: ''
+  }
+
+  computed = {
+    deadlineLabel() {
+      return date.format(this.deadline)
+    }
+  }
+
+  methods = {
+    assigneeChange(e) {
+      this.memberIndex = e.detail.value
+    },
+    deadlineChange(e) {
+      this.deadline = e.detail.value
+    },
+    clearDeadline() {
+      this.deadline = ''
+    },
+    clearAssignee() {
+      this.memberIndex = null
+    },
+    submit(e) {
+      const { title } = e.detail.value
+      if (title.trim() === '') {
+        this.showToast('请输入任务名称')
+        return
+      }
+      let task = {}
+      task.title = title
+      if (this.deadline) {
+        task.deadline = date.toIOSString(this.deadline)
+      }
+      if (this.memberIndex) {
+        task.user_id = this.members[this.memberIndex].id
+      }
+      task.team_id = this.currentTeam.id
+      task.project_id = this.currentProject.id
+
+      let event = {}
+      event.type = taskEvent.create
+      event.event = taskEvent.createText
+      event.user_id = this.user.id
+      this.createTask(task, event)
+    }
+  }
+
+  onLoad() {
+    this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
+    this.currentProject = this.store().currentProject
+    this.members = this.currentProject.users
+  }
+
+  async createTask(task, event) {
+    const result = await this.request(api.task.create.method, api.task.create.url, {
+      task,
+      event
+    })
+    if (result.code === 0) {
+      wepy.navigateBack({
+        delta: 1
+      })
+    } else {
+      this.showToast(result.message)
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+
+.task-title
+  padding 16rpx 24rpx
+  color $color-text
+  background #fff
+  border-bottom 1px solid $color-divider
+.task-title-textarea
+  height 200rpx
+  width 100%
+.task-meta
+  display flex
+  align-items center
+  padding 16rpx 24rpx
+  font-size 36rpx
+  background #fff
+  border-bottom 1px solid $color-divider
+  &-picker
+    flex 1
+    margin-left 24rpx
+    font-size 32rpx
+    color $color-text
+  &-placeholder
+    flex 1
+    font-size 32rpx
+    color $color-text-prompt
+  &-label
+    flex 1
+    margin-left 24rpx
+    font-size 32rpx
+    color $color-text
+.task-btn
+  margin 24rpx
+</style>
