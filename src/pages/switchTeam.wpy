@@ -6,18 +6,19 @@
       </view>
       <view class="account-down"></view>
       <view class="account-box">
-        <view @tap="switchTeam({{item}})" wx:for="{{teams}}" wx:key="{{index}}" wx:for-item="item" :class="{border-top: index !== 0}" class="account-item" hover="true" hover-class="view-light-hover">
-          <text class="text-link">{{item.name}}</text>
+        <view @tap="switchTeam({{item}})" wx:for="{{teams}}" wx:key="{{item.id}}" wx:for-item="item" :class="{border-top: index !== 0}" class="account-item" hover="true" hover-class="view-light-hover">
+          <text>{{item.name}}</text>
         </view>
         <view @tap="showCreate" :class="{border-top: teams.length !== 0}" class="account-item" hover="true" hover-class="view-light-hover">
-          <text class="text-link">＋ 创建新团队</text>
+          <text class="ht-icon ht-plus margin-right-16"></text>
+          <text>创建新团队</text>
         </view>
       </view>
     </view>
     <view :class="{page-cover-show: visable}" class="page-cover">
       <view class="toolbar">
-        <text @tap="handleCancel" class="text-link">取消</text>
-        <text @tap="handleCreate" class="text-link">创建</text>
+        <text @tap="handleCancel" class="text-button">取消</text>
+        <text @tap="handleCreate" class="text-button">创建</text>
       </view>
       <view class="team-input">
         <input value="{{inputValue}}" @input="inputChange" maxlength="20" focus="{{inputFocus}}" type="text" placeholder="例如：研发团队" />
@@ -94,4 +95,5 @@ export default class SwitchTeam extends BasePage {
   text-align center
   background #fff
   border 1rpx solid $color-divider
+
 </style>

@@ -63,9 +63,9 @@
     </view>
     <view :class="{page-cover-show: visable}" class="page-cover">
       <view class="toolbar">
-        <text @tap="handleMembersCancel" class="text-link">取消</text>
+        <text @tap="handleMembersCancel" class="text-button">取消</text>
         <text>选择成员</text>
-        <text @tap="handleMembersOk" class="text-link">确定</text>
+        <text @tap="handleMembersOk" class="text-button">确定</text>
       </view>
       <view>
         <checkbox-group>
@@ -82,7 +82,10 @@
     <block wx:if="{{noData}}">
       <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
     </block>
-    <view wx:if="{{index===0}}" @tap="showTaskAdd" class="view-btn-bottom" hover-class="view-light-hover">添加任务</view>
+    <view wx:if="{{index===0}}" @tap="showTaskAdd" class="view-btn-bottom" hover-class="view-light-hover">
+      <text class="ht-icon ht-plus margin-right-16"></text>
+      <text>添加任务</text>
+    </view>
   </view>
 </template>
 
