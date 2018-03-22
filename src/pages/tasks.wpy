@@ -47,7 +47,7 @@
     </view>
     <wxc-loadmore wx:if="{{showLoadmore}}" is-end="{{!loadMoreDoneList}}" text="{{loadmoreText}}" icon="true"></wxc-loadmore>
   </view>
-  <view wx:if="{{index===2}}" class="margin-top-24" hidden="{{visable}}">
+  <view wx:if="{{index===2}}" class="margin-top-24" hidden="{{projectHidden}}">
     <form @submit="submit">
       <view class="project-name">
         <input value="{{project.name}}" name="name" maxlength="20" focus="{{projectNameFocus}}" type="text" placeholder="项目名称" />
@@ -127,6 +127,7 @@ export default class Tasks extends BasePage {
       size: 10
     },
     visable: false,
+    projectHidden: false,
     projectNameFocus: false,
     members: []
   }
@@ -221,12 +222,22 @@ export default class Tasks extends BasePage {
     showMembers() {
       this.setMembers()
       this.visable = true
+      // textarea层级总是最高，弹出层时隐藏掉
+      setTimeout(() => {
+        this.projectHidden = true
+        this.$apply()
+      }, 300)
     },
     handleMembersOk() {
       this.updateProjectMembers()
     },
     handleMembersCancel() {
       this.visable = false
+      // textarea显示
+      setTimeout(() => {
+        this.projectHidden = false
+        this.$apply()
+      }, 300)
     },
     handleMemberItemTap(index, checked) {
       this.members[index].checked = !checked
