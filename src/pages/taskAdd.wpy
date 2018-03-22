@@ -1,28 +1,30 @@
 <template>
-  <form @submit="submit">
-    <view class="task-title">
-      <textarea name="title" maxlength="200" show-confirm-bar="{{false}}" placeholder="请输入任务名称" class="task-title-textarea" />
-    </view>
-    <view class="task-meta">
-      <text class="ht-icon ht-network"></text>
-      <picker range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="assigneeChange" class="task-meta-picker">
-        <text wx:if="{{memberIndex}}">{{members[memberIndex].name}}</text>
-        <text wx:if="{{!memberIndex}}" class="task-meta-placeholder">选择负责人</text>
-      </picker>
-      <text @tap="clearAssignee" wx:if="{{memberIndex}}" class="ht-icon ht-close"></text>
-    </view>
-    <view class="task-meta">
-      <text class="ht-icon ht-clock-outline"></text>
-      <picker mode="date" value="{{deadline}}" @change="deadlineChange" class="task-meta-picker">
-        <text wx:if="{{deadline}}">{{deadlineLabel}}</text>
-        <text wx:if="{{!deadline}}" class="task-meta-placeholder">设置截至时间</text>
-      </picker>
-      <text @tap="clearDeadline" wx:if="{{deadline}}" class="ht-icon ht-close"></text>
-    </view>
-    <view class="task-btn">
-      <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存</button>
-    </view>
-  </form>
+  <view class="padding-top-24">
+    <form @submit="submit">
+      <view class="task-title">
+        <textarea name="title" maxlength="200" show-confirm-bar="{{false}}" focus="true" placeholder="请输入任务名称" class="task-title-textarea" />
+      </view>
+      <view class="task-meta">
+        <text class="ht-icon ht-network"></text>
+        <picker range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="assigneeChange" class="task-meta-picker">
+          <text wx:if="{{memberIndex}}">{{members[memberIndex].name}}</text>
+          <text wx:if="{{!memberIndex}}" class="task-meta-placeholder">选择负责人</text>
+        </picker>
+        <text @tap="clearAssignee" wx:if="{{memberIndex}}" class="ht-icon ht-close"></text>
+      </view>
+      <view class="task-meta">
+        <text class="ht-icon ht-clock-outline"></text>
+        <picker mode="date" value="{{deadline}}" @change="deadlineChange" class="task-meta-picker">
+          <text wx:if="{{deadline}}">{{deadlineLabel}}</text>
+          <text wx:if="{{!deadline}}" class="task-meta-placeholder">设置截至时间</text>
+        </picker>
+        <text @tap="clearDeadline" wx:if="{{deadline}}" class="ht-icon ht-close"></text>
+      </view>
+      <view class="task-btn">
+        <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存</button>
+      </view>
+    </form>
+  </view>
 </template>
 
 <script>
