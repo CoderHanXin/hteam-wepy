@@ -63,8 +63,16 @@ const api = {
       method: 'GET',
       url: '/api/task/page'
     },
+    create: {
+      method: 'POST',
+      url: '/api/task'
+    },
     update: {
       method: 'PUT',
+      url: '/api/task/:id'
+    },
+    delete: {
+      method: 'DELETE',
       url: '/api/task/:id'
     }
   }
