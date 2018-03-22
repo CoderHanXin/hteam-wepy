@@ -27,7 +27,7 @@
       <wxc-abnor type="DATA" title="没有正在进行的任务"></wxc-abnor>
     </block>
     <view class="card done-list">
-      <view @tap="toggleDoneList" class="card-header-link" hover="true" hover-class="view-light-hover">{{doneListHeader}}</view>
+      <view @tap="toggleDoneList" class="view-link" hover="true" hover-class="view-light-hover">{{doneListHeader}}</view>
       <view wx:if="{{visable}}" wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
         <checkbox disabled="true" checked="true" />
         <view class="task-item-main">
@@ -45,7 +45,7 @@
           </view>
         </view>
       </view>
-      <view wx:if="{{loadMoreVisable}}" @tap="loadMore" class="card-header-link center" hover="true" hover-class="view-light-hover">点击加载更多</view>
+      <view wx:if="{{loadMoreVisable}}" @tap="loadMore" class="view-link" hover="true" hover-class="view-light-hover">点击加载更多</view>
     </view>
   </view>
 </template>
@@ -230,9 +230,10 @@ export default class TaskList extends wepy.component {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
-.card-header-link
+.view-link
   color $color-primary
   padding 16rpx 24rpx
+  text-align center
 .done-list
   margin 32rpx 0 64rpx
 </style>
