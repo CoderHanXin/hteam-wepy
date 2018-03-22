@@ -1,91 +1,90 @@
 <template>
-  <view class="page">
-    <view class="tab">
-      <view @tap="tabChange(0)" class="tab-item">
-        <view :class="{tab-title-active: index === 0}" class="tab-title">进行中</view>
-        <view :class="{tab-line-active: index === 0}" class="tab-line"></view>
-      </view>
-      <view @tap="tabChange(1)" class="tab-item">
-        <view :class="{tab-title-active: index === 1}" class="tab-title">已完成</view>
-        <view :class="{tab-line-active: index === 1}" class="tab-line"></view>
-      </view>
-      <view @tap="tabChange(2)" class="tab-item">
-        <view :class="{tab-title-active: index === 2}" class="tab-title">设置</view>
-        <view :class="{tab-line-active: index === 2}" class="tab-line"></view>
+  <view class="tab">
+    <view @tap="tabChange(0)" class="tab-item">
+      <view :class="{tab-title-active: index === 0}" class="tab-title">进行中</view>
+      <view :class="{tab-line-active: index === 0}" class="tab-line"></view>
+    </view>
+    <view @tap="tabChange(1)" class="tab-item">
+      <view :class="{tab-title-active: index === 1}" class="tab-title">已完成</view>
+      <view :class="{tab-line-active: index === 1}" class="tab-line"></view>
+    </view>
+    <view @tap="tabChange(2)" class="tab-item">
+      <view :class="{tab-title-active: index === 2}" class="tab-title">设置</view>
+      <view :class="{tab-line-active: index === 2}" class="tab-line"></view>
+    </view>
+  </view>
+  <view wx:if="{{index===0}}" class="card margin-top-24">
+    <view @tap="handleItemTap({{task.id}})" wx:for="{{taskList}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
+      <checkbox-group data-id="{{task.id}}" @change="check">
+        <checkbox @tap.stop="emptyFunction" data-id="{{task.id}}" value="{{task.id}}" checked="{{task.done === 1}}" />
+      </checkbox-group>
+      <view class="task-item-main">
+        <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
+        <view class="task-item-meta">
+          <label wx:if="{{task.user.name}}" class="task-item-label">{{task.user.name}}</label>
+          <label :class="{error:task.expired}" class="task-item-label">
+            <text class="ht-icon ht-clock-outline"></text>
+            {{task.deadlineLabel}}
+          </label>
+          <text wx:for="{{task.tags}}" wx:key="index" wx:for-item="tag" class="tag margin-right-24" style="background: {{tag.color}}">{{tag.name}}</text>
+        </view>
       </view>
     </view>
-    <view wx:if="{{index===0}}" class="card margin-top-24">
-      <view @tap="handleItemTap({{task.id}})" wx:for="{{taskList}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
-        <checkbox-group data-id="{{task.id}}" @change="check">
-          <checkbox @tap.stop="emptyFunction" data-id="{{task.id}}" value="{{task.id}}" checked="{{task.done === 1}}" />
-        </checkbox-group>
-        <view class="task-item-main">
-          <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
-          <view class="task-item-meta">
-            <label wx:if="{{task.user.name}}" class="task-item-label">{{task.user.name}}</label>
-            <label :class="{error:task.expired}" class="task-item-label">
-              <text class="ht-icon ht-clock-outline"></text>
-              {{task.deadlineLabel}}
-            </label>
-            <text wx:for="{{task.tags}}" wx:key="index" wx:for-item="tag" class="tag margin-right-24" style="background: {{tag.color}}">{{tag.name}}</text>
+  </view>
+  <view wx:if="{{index===1}}" class="card margin-top-24">
+    <view wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
+      <checkbox disabled="true" checked="true" />
+      <view class="task-item-main">
+        <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
+        <view class="task-item-meta">
+          <label class="task-item-label">{{task.user.name}}</label>
+          <label class="task-item-label">
+            <text class="ht-icon ht-clock-outline"></text>
+            {{wxsDate.format(task.done_at)}} 完成
+          </label>
+        </view>
+      </view>
+    </view>
+    <wxc-loadmore wx:if="{{showLoadmore}}" is-end="{{!loadMoreDoneList}}" text="{{loadmoreText}}" icon="true"></wxc-loadmore>
+  </view>
+  <view wx:if="{{index===2}}" class="margin-top-24" hidden="{{visable}}">
+    <form @submit="submit">
+      <view class="project-name">
+        <input value="{{project.name}}" name="name" maxlength="20" focus="{{projectNameFocus}}" type="text" placeholder="项目名称" />
+      </view>
+      <view class="project-desc">
+        <textarea value="{{project.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="简单描述项目" class="project-desc-textarea" />
+      </view>
+      <view class="project-btn">
+        <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存设置</button>
+        <button @tap="showMembers" class="primary margin-top-24">修改项目成员</button>
+      </view>
+    </form>
+  </view>
+  <view :class="{page-cover-show: visable}" class="page-cover">
+    <view class="toolbar">
+      <text @tap="handleMembersCancel" class="text-button">取消</text>
+      <text>选择成员</text>
+      <text @tap="handleMembersOk" class="text-button">确定</text>
+    </view>
+    <view>
+      <checkbox-group>
+        <view @tap="handleMemberItemTap({{index}}, {{item.checked}})" wx:for="{{members}}" wx:key="{{index}}" wx:for-item="item" class="member">
+          <checkbox @tap.stop="handleMemberCheck({{index}}, {{item.checked}})" value="{{item.id}}" checked="{{item.checked}}" />
+          <view class="member-avatar" style="background:{{wxsUtils.avatarColor(item.color)}}">
+            <text>{{wxsUtils.avatarName(item.name)}}</text>
           </view>
+          <text class="member-name">{{item.name}}</text>
         </view>
-      </view>
+      </checkbox-group>
     </view>
-    <view wx:if="{{index===1}}" class="card margin-top-24">
-      <view wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
-        <checkbox disabled="true" checked="true" />
-        <view class="task-item-main">
-          <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
-          <view class="task-item-meta">
-            <label class="task-item-label">{{task.user.name}}</label>
-            <label class="task-item-label">
-              <text class="ht-icon ht-clock-outline"></text>
-              {{wxsDate.format(task.done_at)}} 完成
-            </label>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view wx:if="{{index===2}}" class="margin-top-24" hidden="{{visable}}">
-      <form @submit="submit">
-        <view class="project-name">
-          <input value="{{project.name}}" name="name" maxlength="20" focus="{{projectNameFocus}}" type="text" placeholder="项目名称" />
-        </view>
-        <view class="project-desc">
-          <textarea value="{{project.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="简单描述项目" class="project-desc-textarea" />
-        </view>
-        <view class="project-btn">
-          <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存设置</button>
-          <button @tap="showMembers" class="primary margin-top-24">修改项目成员</button>
-        </view>
-      </form>
-    </view>
-    <view :class="{page-cover-show: visable}" class="page-cover">
-      <view class="toolbar">
-        <text @tap="handleMembersCancel" class="text-button">取消</text>
-        <text>选择成员</text>
-        <text @tap="handleMembersOk" class="text-button">确定</text>
-      </view>
-      <view>
-        <checkbox-group>
-          <view @tap="handleMemberItemTap({{index}}, {{item.checked}})" wx:for="{{members}}" wx:key="{{index}}" wx:for-item="item" class="member">
-            <checkbox @tap.stop="handleMemberCheck({{index}}, {{item.checked}})" value="{{item.id}}" checked="{{item.checked}}" />
-            <view class="member-avatar" style="background:{{wxsUtils.avatarColor(item.color)}}">
-              <text>{{wxsUtils.avatarName(item.name)}}</text>
-            </view>
-            <text class="member-name">{{item.name}}</text>
-          </view>
-        </checkbox-group>
-      </view>
-    </view>
-    <block wx:if="{{noData}}">
-      <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
-    </block>
-    <view wx:if="{{index===0}}" @tap="showTaskAdd" class="view-btn-bottom" hover-class="view-light-hover">
-      <text class="ht-icon ht-plus margin-right-16"></text>
-      <text>添加任务</text>
-    </view>
+  </view>
+  <block wx:if="{{noData}}">
+    <wxc-abnor type="DATA" title="{{noDataTitle}}"></wxc-abnor>
+  </block>
+  <view wx:if="{{index===0}}" @tap="showTaskAdd" class="view-btn-bottom" hover-class="view-light-hover">
+    <text class="ht-icon ht-plus margin-right-16"></text>
+    <text>添加任务</text>
   </view>
 </template>
 
@@ -103,7 +102,8 @@ export default class Tasks extends BasePage {
     enablePullDownRefresh: true,
     usingComponents: {
       'wxc-elip': '../../packages/@minui/wxc-elip/dist/index',
-      'wxc-abnor': '../../packages/@minui/wxc-abnor/dist/index'
+      'wxc-abnor': '../../packages/@minui/wxc-abnor/dist/index',
+      'wxc-loadmore': '../../packages/@minui/wxc-loadmore/dist/index'
     }
   }
 
@@ -159,6 +159,15 @@ export default class Tasks extends BasePage {
       if (this.index === 1) {
         return '没有已经完成的任务'
       }
+    },
+    loadMoreDoneList() {
+      return this.page.total > this.page.page * this.page.size
+    },
+    loadmoreText() {
+      return this.loadMoreDoneList ? '玩命加载中' : '没有了'
+    },
+    showLoadmore() {
+      return this.doneList.length !== 0
     }
   }
 
@@ -258,6 +267,12 @@ export default class Tasks extends BasePage {
       this.getProject().then(() => {
         wepy.stopPullDownRefresh()
       })
+    }
+  }
+
+  onReachBottom() {
+    if (this.loadMoreDoneList) {
+      this.getDoneList()
     }
   }
 
