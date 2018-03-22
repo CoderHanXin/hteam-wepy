@@ -70,7 +70,7 @@
     <view>
       <checkbox-group>
         <view @tap="handleMemberItemTap({{index}}, {{item.checked}})" wx:for="{{members}}" wx:key="{{index}}" wx:for-item="item" class="member">
-          <checkbox @tap.stop="handleMemberCheck({{index}}, {{item.checked}})" value="{{item.id}}" checked="{{item.checked}}" />
+          <checkbox @tap.stop="handleMemberCheck({{index}}, {{item.checked}})" checked="{{item.checked}}" />
           <view class="member-avatar" style="background:{{wxsUtils.avatarColor(item.color)}}">
             <text>{{wxsUtils.avatarName(item.name)}}</text>
           </view>
@@ -373,6 +373,11 @@ export default class Tasks extends BasePage {
     if (result.code === 0) {
       this.showToast('操作成功')
       this.visable = false
+      // textarea显示
+      setTimeout(() => {
+        this.projectHidden = false
+        this.$apply()
+      }, 300)
       this.project.users = userList
     } else {
       this.showToast(result.message)
