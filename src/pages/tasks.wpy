@@ -40,7 +40,7 @@
           <label class="task-item-label">{{task.user.name}}</label>
           <label class="task-item-label">
             <text class="ht-icon ht-clock-outline"></text>
-            {{wxsDate.format(task.done_at)}} 完成
+            {{wxsDate.formatDate(task.done_at)}} 完成
           </label>
         </view>
       </view>

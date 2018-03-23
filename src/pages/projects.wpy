@@ -1,7 +1,7 @@
 <template>
   <view class="padding-top-24">
     <view class="card">
-      <view @tap="handleItemTap({{item}})" wx:for="{{list}}" wx:key="{{index}}" wx:for-item="item" class="project-item" hover="{{true}}" hover-class="view-light-hover">
+      <view wx:for="{{list}}" wx:key="{{index}}" wx:for-item="item" @tap="handleItemTap({{item}})" class="project-item" hover="{{true}}" hover-class="view-light-hover">
         <view class="project-icon">
           <text class="ht-icon ht-project"></text>
         </view>

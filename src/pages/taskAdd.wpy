@@ -5,18 +5,18 @@
         <textarea name="title" maxlength="200" show-confirm-bar="{{false}}" focus="true" placeholder="请输入任务名称" class="task-title-textarea" />
       </view>
       <view class="task-meta">
-        <text class="ht-icon ht-network"></text>
+        <text class="ht-icon ht-person-add"></text>
         <picker range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="assigneeChange" class="task-meta-picker">
-          <text wx:if="{{memberIndex}}">{{members[memberIndex].name}}</text>
-          <text wx:if="{{!memberIndex}}" class="task-meta-placeholder">选择负责人</text>
+          <text wx:if="{{memberIndex !== null}}">{{members[memberIndex].name}}</text>
+          <text wx:else class="task-meta-placeholder">选择负责人</text>
         </picker>
-        <text @tap="clearAssignee" wx:if="{{memberIndex}}" class="ht-icon ht-close"></text>
+        <text @tap="clearAssignee" wx:if="{{memberIndex !== null}}" class="ht-icon ht-close"></text>
       </view>
       <view class="task-meta">
         <text class="ht-icon ht-clock-outline"></text>
         <picker mode="date" value="{{deadline}}" @change="deadlineChange" class="task-meta-picker">
           <text wx:if="{{deadline}}">{{deadlineLabel}}</text>
-          <text wx:if="{{!deadline}}" class="task-meta-placeholder">设置截至时间</text>
+          <text wx:else class="task-meta-placeholder">设置截至时间</text>
         </picker>
         <text @tap="clearDeadline" wx:if="{{deadline}}" class="ht-icon ht-close"></text>
       </view>
@@ -122,27 +122,6 @@ export default class TaskAdd extends BasePage {
 .task-title-textarea
   height 200rpx
   width 100%
-.task-meta
-  display flex
-  align-items center
-  padding 16rpx 24rpx
-  font-size 36rpx
-  background #fff
-  border-bottom 1px solid $color-divider
-  &-picker
-    flex 1
-    margin-left 24rpx
-    font-size 32rpx
-    color $color-text
-  &-placeholder
-    flex 1
-    font-size 32rpx
-    color $color-text-prompt
-  &-label
-    flex 1
-    margin-left 24rpx
-    font-size 32rpx
-    color $color-text
 .task-btn
   margin 24rpx
 </style>
