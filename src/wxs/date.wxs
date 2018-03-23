@@ -1,4 +1,4 @@
-var format = function(t) {
+var formatDate = function(t) {
   var now = getDate()
   var d = getDate(t)
   var nowYear = now.getFullYear()
@@ -12,6 +12,25 @@ var format = function(t) {
     : [year, month, day].join('-')
 }
 
+var formatTime = function(t) {
+  var now = getDate()
+  var d = getDate(t)
+  var nowYear = now.getFullYear()
+  var year = d.getFullYear()
+  var month = d.getMonth() + 1
+  var day = d.getDate()
+  var hour = d.getHours()
+  var minute = d.getMinutes()
+  month = month < 10 ? '0' + month : month
+  day = day < 10 ? '0' + day : day
+  hour = hour < 10 ? '0' + hour : hour
+  minute = minute < 10 ? '0' + minute : minute
+  return nowYear === year
+    ? [month, day].join('-') + ' ' + [hour, minute].join(':')
+    : [year, month, day].join('-') + ' ' + [hour, minute].join(':')
+}
+
 module.exports = {
-  format: format
+  formatDate: formatDate,
+  formatTime: formatTime
 }
