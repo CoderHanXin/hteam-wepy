@@ -1,0 +1,401 @@
+<template>
+  <view class="padding-top-24">
+    <view class="card">
+      <view class="project-name">项目：{{project.name}}</view>
+      <view class="center">
+        <view class="tap-btn">
+          <text>点击完成任务</text>
+        </view>
+        <view @tap="editTitle" class="task-title">
+          <text>{{task.title}}</text>
+        </view>
+      </view>
+      <view class="task-meta">
+        <text class="ht-icon ht-person-add"></text>
+        <picker range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="changeAssignee" class="task-meta-picker">
+          <text wx:if="{{memberIndex !== null}}">{{members[memberIndex].name}}</text>
+          <text wx:else class="task-meta-placeholder">选择负责人</text>
+        </picker>
+        <text @tap="clearAssignee" wx:if="{{memberIndex !== null}}" class="ht-icon ht-close"></text>
+      </view>
+      <view class="task-meta">
+        <text class="ht-icon ht-clock-outline"></text>
+        <picker mode="date" value="{{task.deadline}}" @change="changeDeadline" class="task-meta-picker">
+          <text wx:if="{{task.deadline}}">{{deadlineLabel}}</text>
+          <text wx:else class="task-meta-placeholder">设置截至时间</text>
+        </picker>
+        <text @tap="clearDeadline" wx:if="{{task.deadline}}" class="ht-icon ht-close"></text>
+      </view>
+      <view @tap="editDesc" class="task-meta" style="align-items:flex-start">
+        <text class="ht-icon ht-detail margin-right-24"></text>
+        <text wx:if="{{task.desc}}" class="task-meta-label">{{task.desc}}</text>
+        <text wx:else class="task-meta-link">添加任务描述</text>
+      </view>
+    </view>
+    <view class="comment">
+      <view wx:for="{{task.comments}}" wx:key="{{index}}" wx:for-item="item" class="comment-item">
+        <view class="flex-row" style="align-items:center">
+          <view class="comment-avatar" style="background:{{wxsUtils.avatarColor(item.user.color)}}">
+            <text>{{wxsUtils.avatarName(item.user.name)}}</text>
+          </view>
+          <view class="flex-row" style="align-items:baseline">
+            <text class="comment-user">{{item.user.name}}</text>
+            <text class="comment-time">{{wxsDate.formatTime(item.created_at)}}</text>
+          </view>
+        </view>
+        <view class="comment-content">
+          <text>{{item.content}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view :class="{page-cover-show: visable}" class="page-cover">
+    <form @submit="handleOk">
+      <view class="toolbar">
+        <text @tap="handleCancel" class="text-button">取消</text>
+        <button form-type="submit" class="btn-text">保存</button>
+      </view>
+      <view hidden="{{!visable}}" class="task-edit">
+        <block wx:if="{{!isComment}}">
+          <textarea wx:if="{{isEditTitle}}" value="{{task.title}}" name="title" maxlength="200" show-confirm-bar="{{false}}" placeholder="请输入任务名称" class="task-edit-textarea" />
+          <textarea wx:else value="{{task.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入任务描述" class="task-edit-textarea" />
+        </block>
+        <textarea wx:if="{{isComment}}" name="comment" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入评论" class="task-edit-textarea" />
+      </view>
+    </form>
+  </view>
+  <view @tap="addComment" class="comment-footer">
+    <text class="ht-icon ht-chat" style="padding: 0 24rpx"></text>
+    <text class="flex-1">添加评论</text>
+    <text @tap.stop="showActions" class="ht-icon ht-more-outline" style="padding: 0 24rpx"></text>
+  </view>
+  <view></view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BasePage from 'BasePage'
+import date from 'utils/date'
+import wxsDate from '../wxs/date.wxs'
+import wxsUtils from '../wxs/utils.wxs'
+import taskEvent from '@/common/constant/taskEvent'
+import { api } from '@/config'
+export default class Task extends BasePage {
+  config = {
+    navigationBarTitleText: '任务详情'
+  }
+
+  wxs = {
+    wxsDate,
+    wxsUtils
+  }
+
+  data = {
+    projectName: '',
+    task: {
+      id: '',
+      title: '',
+      desc: '',
+      deadline: ''
+    },
+    project: {
+      id: '',
+      name: ''
+    },
+    memberIndex: null,
+    members: [],
+    visable: false,
+    isEditTitle: false,
+    isComment: false,
+    actions: [
+      '编辑',
+      '删除'
+    ]
+  }
+
+  computed = {
+    deadlineLabel() {
+      return date.format(this.task.deadline)
+    }
+  }
+
+  methods = {
+    showActions() {
+      wepy.showActionSheet({
+        itemList: this.actions,
+        itemColor: '#2d8cf0'
+      }).then(res => {
+        console.log(res)
+        if (res.tapIndex === 0) {
+          this.editTitle()
+        } else if (res.tapIndex === 1) {
+          wepy.showModal({
+            title: '提醒',
+            content: '确定要删除任务吗？',
+            confirmColor: '#2d8cf0'
+          }).then(res => {
+            console.log(res)
+            if (res.confirm) {
+              this.deleteTask(this.task.id)
+            }
+          })
+        }
+      }).catch()
+    },
+    addComment() {
+      this.isComment = true
+      this.visable = true
+    },
+    editTitle() {
+      this.isEditTitle = true
+      this.visable = true
+    },
+    editDesc() {
+      this.isEditTitle = false
+      this.visable = true
+    },
+    async handleOk(e) {
+      let { title, desc, comment } = e.detail.value
+      if (this.isComment) {
+        if (comment.trim() === '') {
+          this.showToast('请输入评论')
+          return
+        }
+        await this.addComment(this.task.id, comment)
+      } else {
+        let task = {}
+        if (this.isEditTitle) {
+          if (title.trim() === '') {
+            this.showToast('请输入任务名称')
+            return
+          }
+          task.title = title
+        } else {
+          task.desc = desc
+        }
+        let event = {}
+        event.user_id = this.user.id
+        event.task_id = this.task.id
+        event.type = taskEvent.update
+        event.event = taskEvent.updateText
+        await this.updateTask(this.task.id, task, event)
+        if (this.isEditTitle) {
+          this.task.title = title
+        } else {
+          this.task.desc = desc
+        }
+      }
+      this.isComment = false
+      this.visable = false
+      this.$apply()
+      console.log(e.detail.value)
+    },
+    handleCancel() {
+      this.isComment = false
+      this.visable = false
+    },
+    async changeAssignee(e) {
+      if (this.memberIndex === e.detail.value) {
+        return
+      }
+      let task = {}
+      let event = {}
+      let member = this.members[e.detail.value]
+      task.user_id = member.id
+      event.user_id = this.user.id
+      event.task_id = this.task.id
+      event.type = taskEvent.assign
+      event.event = taskEvent.assignText.replace('{assignee}', member.name)
+
+      await this.updateTask(this.task.id, task, event)
+      this.memberIndex = e.detail.value
+      this.$apply()
+      console.log('changeAssignee')
+    },
+    async changeDeadline(e) {
+      if (this.task.deadline === e.detail.value) {
+        return
+      }
+      let task = {}
+      let event = {}
+      task.deadline = date.toIOSString(e.detail.value)
+      event.user_id = this.user.id
+      event.task_id = this.task.id
+      event.type = taskEvent.deadline
+      event.event = taskEvent.deadlineText
+      event.deadline = task.deadline
+      await this.updateTask(this.task.id, task, event)
+      this.task.deadline = e.detail.value
+      this.$apply()
+      console.log('changeDeadline')
+    },
+    async clearDeadline() {
+      let task = {}
+      let event = {}
+      task.deadline = null
+      event.user_id = this.user.id
+      event.task_id = this.task.id
+      event.type = taskEvent.noDeadline
+      event.event = taskEvent.noDeadlineText
+      await this.updateTask(this.task.id, task, event)
+      this.task.deadline = ''
+      this.$apply()
+      console.log('clearDeadline')
+    },
+    async clearAssignee() {
+      let task = {}
+      let event = {}
+      let member = this.members[this.memberIndex]
+      task.user_id = null
+      event.user_id = this.user.id
+      event.task_id = this.task.id
+      event.type = taskEvent.unassign
+      event.event = taskEvent.unassignText.replace('{assignee}', member.name)
+      await this.updateTask(this.task.id, task, event)
+      this.memberIndex = null
+      this.$apply()
+      console.log('clearAssignee')
+    }
+  }
+
+  async onLoad(option) {
+    this.user = this.store().user
+    this.task.id = option.id
+    this.project.id = option.pId
+    await this.getProject()
+    await this.getTask()
+    this.members = this.project.users
+    for (let index = 0; index < this.members.length; index++) {
+      if (this.task.user_id === this.members[index].id) {
+        this.memberIndex = index
+        break
+      }
+    }
+    this.$apply()
+  }
+
+  async getTask() {
+    const result = await this.request(api.task.show.method, api.task.show.url.replace(':id', this.task.id))
+    this.task = result.data
+  }
+
+  async getProject() {
+    const result = await this.request(api.project.show.method, api.project.show.url.replace(':id', this.project.id))
+    this.project = result.data
+  }
+
+  async updateTask(id, task, event) {
+    const result = await this.request(api.task.update.method, api.task.update.url.replace(':id', id), {
+      task,
+      event
+    })
+    if (result.code !== 0) {
+      this.showToast(result.message)
+    }
+  }
+
+  async deleteTask(id) {
+    const result = await this.request(api.task.delete.method, api.task.delete.url.replace(':id', id))
+    if (result.code === 0) {
+      wepy.navigateBack({
+        delta: 1
+      })
+    } else {
+      this.showToast(result.message)
+    }
+  }
+
+  async addComment(id, comment) {
+    const result = await this.request(api.task.addComment.method, api.task.addComment.url.replace(':id', id), {
+      content: comment,
+      user_id: this.user.id
+    })
+    if (result.code !== 0) {
+      this.showToast(result.message)
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+
+.comment
+  padding 24rpx 0 108rpx
+.comment-item
+  padding 24rpx
+.comment-avatar
+  display flex
+  align-items center
+  justify-content center
+  width 60rpx
+  height 60rpx
+  margin-right 24rpx
+  color #fff
+  font-size 20rpx
+  border-radius 50%
+.comment-user
+  color $color-text
+  padding-right 16rpx
+.comment-time
+  color $color-text-prompt
+  font-size 24rpx
+.comment-content
+  margin-left 84rpx
+  color $color-text-secondary
+  font-size 28rpx
+.comment-footer
+  position fixed
+  display flex
+  align-items center
+  bottom 0
+  left 0
+  width 100%
+  padding 24rpx 0
+  box-sizing border-box
+  color $color-text-prompt
+  background-color #fff
+  border-top 1rpx solid $color-divider
+  z-index 10
+.btn-text
+  margin 0
+  padding 16rpx 24rpx
+  box-sizing content-box
+  line-height 1.5
+  color $color-primary
+  background-color #fff
+  &:after
+    border none
+.project-name
+  padding 16rpx 24rpx
+  font-size 28rpx
+  color $color-text-prompt
+.tap-btn
+  display flex
+  flex-direction column
+  justify-content center
+  box-sizing border-box
+  width 160rpx
+  height 160rpx
+  margin 32rpx auto
+  padding 16rpx
+  font-size 28rpx
+  color $color-text-prompt
+  border 1rpx solid $color-text
+  border-radius 32rpx
+  box-shadow inset 0 0 16rpx rgba(0, 0, 0, 0.3)
+.task-title
+  padding 16rpx 24rpx
+  text-decoration-line underline
+  text-decoration-style dashed
+  text-underline-position under
+  font-size 36rpx
+.task-edit
+  padding 16rpx 24rpx
+  color $color-text
+  background #fff
+  border-bottom 1px solid $color-divider
+.task-edit-textarea
+  height 200rpx
+  width 100%
+</style>

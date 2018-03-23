@@ -35,6 +35,9 @@ export default class Me extends BasePage {
   onLoad() {
     this.user = this.store().user
     this.currentTeam = this.store().currentTeam
+  }
+
+  onShow() {
     this.$broadcast('user-task-list-load', this.currentTeam.id, this.user.id)
   }
 
@@ -45,4 +48,5 @@ export default class Me extends BasePage {
 </script>
 
 <style>
+
 </style>

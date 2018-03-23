@@ -2,7 +2,7 @@
   <view class="padding-top-24">
     <view wx:for="{{groupList}}" wx:key="{{index}}" wx:for-item="item" class="card" :class="{margin-top-24: index !== 0}">
       <view class="card-header">{{item.name}}</view>
-      <view @tap="handleItemTap({{task.id}})" wx:for="{{item.list}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
+      <view wx:for="{{item.list}}" wx:key="{{index}}" wx:for-item="task" @tap="handleItemTap({{task}})" class="task-item" hover="{{true}}" hover-class="view-light-hover">
         <checkbox-group data-id="{{task.id}}" @change="check">
           <checkbox @tap.stop="emptyFunction" data-id="{{task.id}}" value="{{task.id}}" checked="{{task.done === 1}}" />
         </checkbox-group>
@@ -36,7 +36,7 @@
             <label class="task-item-label">{{task.user.name}}</label>
             <label class="task-item-label">
               <text class="ht-icon ht-clock-outline"></text>
-              {{wxsDate.format(task.done_at)}} 完成
+              {{wxsDate.formatDate(task.done_at)}} 完成
             </label>
             <label class="task-item-label">
               <text class="ht-icon ht-project-outline"></text>
@@ -131,9 +131,10 @@ export default class TaskList extends wepy.component {
 
   methods = {
     emptyFunction() { },
-    handleItemTap(id) {
-      console.log('item click:', id)
-      this.showToast('开发中')
+    handleItemTap(task) {
+      wepy.navigateTo({
+        url: `task?id=${task.id}&pId=${task.project.id}`
+      })
     },
     check(e) {
       let id = e.target.dataset.id
