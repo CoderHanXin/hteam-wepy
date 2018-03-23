@@ -2,6 +2,7 @@ const domain =
   process.env.NODE_ENV === 'production'
     ? 'https://api.hteam.url.com'
     : 'http://127.0.0.1:7001'
+    // : 'https://api.hteam.htwysoft.com'
 
 const api = {
   user: {
@@ -63,6 +64,10 @@ const api = {
       method: 'GET',
       url: '/api/task/page'
     },
+    show: {
+      method: 'GET',
+      url: '/api/task/:id'
+    },
     create: {
       method: 'POST',
       url: '/api/task'
@@ -74,6 +79,22 @@ const api = {
     delete: {
       method: 'DELETE',
       url: '/api/task/:id'
+    },
+    addComment: {
+      method: 'POST',
+      url: '/api/task/:id/comment'
+    },
+    addTag: {
+      method: 'POST',
+      url: '/api/task/:id/addTag'
+    },
+    removeTag: {
+      method: 'POST',
+      url: '/api/task/:id/removeTag'
+    },
+    showEvent: {
+      method: 'GET',
+      url: '/api/task/:id/event'
     }
   }
 }
