@@ -14,7 +14,7 @@
     </view>
   </view>
   <view wx:if="{{index===0}}" class="card margin-top-24">
-    <view @tap="handleItemTap({{task.id}})" wx:for="{{taskList}}" wx:key="{{index}}" wx:for-item="task" class="task-item" hover="{{true}}" hover-class="view-light-hover">
+    <view wx:for="{{taskList}}" wx:key="{{index}}" wx:for-item="task" @tap="handleItemTap({{task}})" class="task-item" hover="{{true}}" hover-class="view-light-hover">
       <checkbox-group data-id="{{task.id}}" @change="check">
         <checkbox @tap.stop="emptyFunction" data-id="{{task.id}}" value="{{task.id}}" checked="{{task.done === 1}}" />
       </checkbox-group>
@@ -32,7 +32,7 @@
     </view>
   </view>
   <view wx:if="{{index===1}}" class="card margin-top-24">
-    <view wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" class="task-item">
+    <view wx:for="{{doneList}}" wx:key="{{index}}" wx:for-item="task" @tap="handleItemTap({{task}})" class="task-item">
       <checkbox disabled="true" checked="true" />
       <view class="task-item-main">
         <wxc-elip class="task-item-title" line="2">{{task.title}}</wxc-elip>
@@ -178,15 +178,13 @@ export default class Tasks extends BasePage {
         url: `taskAdd`
       })
     },
-    handleItemTap(id) {
-      console.log('item click:', id)
-      this.showToast('开发中')
+    handleItemTap(task) {
+      wepy.navigateTo({
+        url: `task?id=${task.id}`
+      })
     },
     tabChange(index = 0) {
       this.index = Number(index)
-      if (this.index === 1 && this.doneList.length === 0) {
-        this.getDoneList()
-      }
       if (this.index === 2 && this.allUsers.length === 0) {
         this.getAllUsersAndGroups()
       }
@@ -262,6 +260,7 @@ export default class Tasks extends BasePage {
 
   onShow() {
     this.getList()
+    this.getDoneList()
   }
 
   onPullDownRefresh() {

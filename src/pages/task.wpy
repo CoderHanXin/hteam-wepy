@@ -214,6 +214,7 @@ export default class Task extends BasePage {
           }
           this.isEditTitle = true
           this.visable = true
+          this.$apply()
         } else if (res.tapIndex === 1) {
           wepy.showModal({
             title: '提醒',
@@ -398,8 +399,12 @@ export default class Task extends BasePage {
   async onLoad(option) {
     this.user = this.store().user
     this.task.id = option.id
-    this.project.id = option.pId
-    await this.getProject()
+    if (option.pId) {
+      this.project.id = option.pId
+      await this.getProject()
+    } else {
+      this.project = this.store().currentProject
+    }
     await this.getTask()
     this.members = this.project.users
     for (let index = 0; index < this.members.length; index++) {
