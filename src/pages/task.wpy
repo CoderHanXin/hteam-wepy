@@ -3,8 +3,12 @@
     <view class="card">
       <view class="project-name">项目：{{project.name}}</view>
       <view class="center">
-        <view class="tap-btn">
-          <text>点击完成任务</text>
+        <view>
+          <view @tap="handleTap" :class="{'task-button':task.done === 0,'task-button-done':task.done === 1}">
+            <text wx:if="{{task.done === 0}}">点击完成任务</text>
+            <text wx:else class="ht-icon ht-check"></text>
+            <view animation="{{animationData}}" hidden="{{animationHidden}}" class="circle"></view>
+          </view>
         </view>
         <view @tap="editTitle" class="task-title">
           <text>{{task.title}}</text>
@@ -12,19 +16,22 @@
       </view>
       <view class="task-meta">
         <text class="ht-icon ht-person-add"></text>
-        <picker range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="changeAssignee" class="task-meta-picker">
-          <text wx:if="{{memberIndex !== null}}">{{members[memberIndex].name}}</text>
+        <picker disabled="{{task.done === 1}}" range="{{members}}" range-key="{{'name'}}" value="{{memberIndex}}" @change="changeAssignee" class="task-meta-picker">
+          <text wx:if="{{memberIndex !== null}}">{{members[memberIndex].name}} 负责</text>
           <text wx:else class="task-meta-placeholder">选择负责人</text>
         </picker>
-        <text @tap="clearAssignee" wx:if="{{memberIndex !== null}}" class="ht-icon ht-close"></text>
+        <text @tap="clearAssignee" wx:if="{{memberIndex !== null && task.done === 0}}" class="ht-icon ht-close"></text>
       </view>
       <view class="task-meta">
         <text class="ht-icon ht-clock-outline"></text>
-        <picker mode="date" value="{{task.deadline}}" @change="changeDeadline" class="task-meta-picker">
-          <text wx:if="{{task.deadline}}">{{deadlineLabel}}</text>
-          <text wx:else class="task-meta-placeholder">设置截至时间</text>
+        <picker disabled="{{task.done === 1}}" mode="date" value="{{task.deadline}}" @change="changeDeadline" class="task-meta-picker">
+          <text wx:if="{{task.done === 1}}">{{doneAtLabel}} 完成</text>
+          <block wx:else>
+            <text wx:if="{{task.deadline}}">{{deadlineLabel}} 到期</text>
+            <text wx:else class="task-meta-placeholder">设置截至时间</text>
+          </block>
         </picker>
-        <text @tap="clearDeadline" wx:if="{{task.deadline}}" class="ht-icon ht-close"></text>
+        <text @tap="clearDeadline" wx:if="{{task.deadline && task.done === 0}}" class="ht-icon ht-close"></text>
       </view>
       <view @tap="editDesc" class="task-meta" style="align-items:flex-start">
         <text class="ht-icon ht-detail margin-right-24"></text>
@@ -56,15 +63,15 @@
         <button form-type="submit" class="btn-text">保存</button>
       </view>
       <view hidden="{{!visable}}" class="task-edit">
-        <block wx:if="{{!isComment}}">
+        <textarea wx:if="{{isEditComment}}" name="comment" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入评论" class="task-edit-textarea" />
+        <block wx:else>
           <textarea wx:if="{{isEditTitle}}" value="{{task.title}}" name="title" maxlength="200" show-confirm-bar="{{false}}" placeholder="请输入任务名称" class="task-edit-textarea" />
           <textarea wx:else value="{{task.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入任务描述" class="task-edit-textarea" />
         </block>
-        <textarea wx:if="{{isComment}}" name="comment" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入评论" class="task-edit-textarea" />
       </view>
     </form>
   </view>
-  <view @tap="addComment" class="comment-footer">
+  <view @tap="editComment" class="comment-footer">
     <text class="ht-icon ht-chat" style="padding: 0 24rpx"></text>
     <text class="flex-1">添加评论</text>
     <text @tap.stop="showActions" class="ht-icon ht-more-outline" style="padding: 0 24rpx"></text>
@@ -91,7 +98,6 @@ export default class Task extends BasePage {
   }
 
   data = {
-    projectName: '',
     task: {
       id: '',
       title: '',
@@ -106,35 +112,87 @@ export default class Task extends BasePage {
     members: [],
     visable: false,
     isEditTitle: false,
-    isComment: false,
+    isEditComment: false,
     actions: [
       '编辑',
       '删除'
-    ]
+    ],
+    animationHidden: true,
+    animationData: {},
+    tapDisabled: false
   }
 
   computed = {
     deadlineLabel() {
       return date.format(this.task.deadline)
+    },
+    doneAtLabel() {
+      return date.format(this.task.done_at)
     }
   }
 
   methods = {
+    handleTap() {
+      if (this.tapDisabled) {
+        this.showToast('请勿连续点击！')
+        return
+      } else {
+        this.tapDisabled = true
+      }
+      // 先显示动画层
+      this.animationHidden = false
+      this.$apply()
+      // 点击圆形扩散动画
+      let animation = wepy.createAnimation()
+      animation.opacity(0).scale(4).step({
+        duration: 1000,
+        timingFunction: 'ease'
+      })
+      this.animationData = animation.export()
+
+      // 动画执行完后将动画层隐藏
+      setTimeout(() => {
+        this.animationHidden = true
+        this.tapDisabled = false
+        animation.scale(1).opacity(1).step({ duration: 0 })
+        this.animationData = animation.export()
+        this.$apply()
+      }, 1000)
+
+      let task = {}
+      let event = {}
+      event.user_id = this.user.id
+      event.task_id = this.task.id
+      if (this.task.done === 0) {
+        this.task.done = 1
+        event.type = taskEvent.done
+        event.event = taskEvent.doneText
+      } else {
+        this.task.done = 0
+        event.type = taskEvent.reopen
+        event.event = taskEvent.reopenText
+      }
+      task.done = this.task.done
+      this.updateTask(this.task.id, task, event)
+    },
     showActions() {
       wepy.showActionSheet({
         itemList: this.actions,
         itemColor: '#2d8cf0'
       }).then(res => {
-        console.log(res)
         if (res.tapIndex === 0) {
-          this.editTitle()
+          if (this.task.done === 1) {
+            this.showToast('任务已完成，不能再次编辑。')
+            return
+          }
+          this.isEditTitle = true
+          this.visable = true
         } else if (res.tapIndex === 1) {
           wepy.showModal({
             title: '提醒',
             content: '确定要删除任务吗？',
             confirmColor: '#2d8cf0'
           }).then(res => {
-            console.log(res)
             if (res.confirm) {
               this.deleteTask(this.task.id)
             }
@@ -142,26 +200,43 @@ export default class Task extends BasePage {
         }
       }).catch()
     },
-    addComment() {
-      this.isComment = true
+    editComment() {
+      this.isEditComment = true
       this.visable = true
     },
     editTitle() {
+      if (this.task.done === 1) {
+        return
+      }
       this.isEditTitle = true
       this.visable = true
     },
     editDesc() {
+      if (this.task.done === 1) {
+        return
+      }
       this.isEditTitle = false
       this.visable = true
     },
-    async handleOk(e) {
+    handleOk(e) {
       let { title, desc, comment } = e.detail.value
-      if (this.isComment) {
+      if (this.isEditComment) {
         if (comment.trim() === '') {
           this.showToast('请输入评论')
           return
         }
-        await this.addComment(this.task.id, comment)
+        this.addComment(this.task.id, comment).then(res => {
+          if (res.code !== 0) {
+            this.showToast(res.message)
+            return
+          }
+          // 把评论加入列表
+          res.data.user = this.user
+          this.task.comments.push(res.data)
+          this.isEditComment = false
+          this.visable = false
+          this.$apply()
+        })
       } else {
         let task = {}
         if (this.isEditTitle) {
@@ -178,23 +253,27 @@ export default class Task extends BasePage {
         event.task_id = this.task.id
         event.type = taskEvent.update
         event.event = taskEvent.updateText
-        await this.updateTask(this.task.id, task, event)
-        if (this.isEditTitle) {
-          this.task.title = title
-        } else {
-          this.task.desc = desc
-        }
+        this.updateTask(this.task.id, task, event).then(res => {
+          if (res.code !== 0) {
+            this.showToast(res.message)
+            return
+          }
+          if (this.isEditTitle) {
+            this.task.title = title
+          } else {
+            this.task.desc = desc
+          }
+          this.visable = false
+          this.$apply()
+        })
       }
-      this.isComment = false
-      this.visable = false
-      this.$apply()
       console.log(e.detail.value)
     },
     handleCancel() {
-      this.isComment = false
+      this.isEditComment = false
       this.visable = false
     },
-    async changeAssignee(e) {
+    changeAssignee(e) {
       if (this.memberIndex === e.detail.value) {
         return
       }
@@ -207,12 +286,17 @@ export default class Task extends BasePage {
       event.type = taskEvent.assign
       event.event = taskEvent.assignText.replace('{assignee}', member.name)
 
-      await this.updateTask(this.task.id, task, event)
-      this.memberIndex = e.detail.value
-      this.$apply()
-      console.log('changeAssignee')
+      this.updateTask(this.task.id, task, event).then(res => {
+        if (res.code !== 0) {
+          this.showToast(res.message)
+          return
+        }
+        this.memberIndex = e.detail.value
+        this.$apply()
+        console.log('changeAssignee')
+      })
     },
-    async changeDeadline(e) {
+    changeDeadline(e) {
       if (this.task.deadline === e.detail.value) {
         return
       }
@@ -224,12 +308,18 @@ export default class Task extends BasePage {
       event.type = taskEvent.deadline
       event.event = taskEvent.deadlineText
       event.deadline = task.deadline
-      await this.updateTask(this.task.id, task, event)
-      this.task.deadline = e.detail.value
-      this.$apply()
-      console.log('changeDeadline')
+
+      this.updateTask(this.task.id, task, event).then(res => {
+        if (res.code !== 0) {
+          this.showToast(res.message)
+          return
+        }
+        this.task.deadline = e.detail.value
+        this.$apply()
+        console.log('changeDeadline')
+      })
     },
-    async clearDeadline() {
+    clearDeadline() {
       let task = {}
       let event = {}
       task.deadline = null
@@ -237,12 +327,17 @@ export default class Task extends BasePage {
       event.task_id = this.task.id
       event.type = taskEvent.noDeadline
       event.event = taskEvent.noDeadlineText
-      await this.updateTask(this.task.id, task, event)
-      this.task.deadline = ''
-      this.$apply()
-      console.log('clearDeadline')
+      this.updateTask(this.task.id, task, event).then(res => {
+        if (res.code !== 0) {
+          this.showToast(res.message)
+          return
+        }
+        this.task.deadline = ''
+        this.$apply()
+        console.log('clearDeadline')
+      })
     },
-    async clearAssignee() {
+    clearAssignee() {
       let task = {}
       let event = {}
       let member = this.members[this.memberIndex]
@@ -251,10 +346,15 @@ export default class Task extends BasePage {
       event.task_id = this.task.id
       event.type = taskEvent.unassign
       event.event = taskEvent.unassignText.replace('{assignee}', member.name)
-      await this.updateTask(this.task.id, task, event)
-      this.memberIndex = null
-      this.$apply()
-      console.log('clearAssignee')
+      this.updateTask(this.task.id, task, event).then(res => {
+        if (res.code !== 0) {
+          this.showToast(res.message)
+          return
+        }
+        this.memberIndex = null
+        this.$apply()
+        console.log('clearAssignee')
+      })
     }
   }
 
@@ -284,14 +384,11 @@ export default class Task extends BasePage {
     this.project = result.data
   }
 
-  async updateTask(id, task, event) {
-    const result = await this.request(api.task.update.method, api.task.update.url.replace(':id', id), {
+  updateTask(id, task, event) {
+    return this.request(api.task.update.method, api.task.update.url.replace(':id', id), {
       task,
       event
     })
-    if (result.code !== 0) {
-      this.showToast(result.message)
-    }
   }
 
   async deleteTask(id) {
@@ -305,14 +402,11 @@ export default class Task extends BasePage {
     }
   }
 
-  async addComment(id, comment) {
-    const result = await this.request(api.task.addComment.method, api.task.addComment.url.replace(':id', id), {
+  addComment(id, comment) {
+    return this.request(api.task.addComment.method, api.task.addComment.url.replace(':id', id), {
       content: comment,
       user_id: this.user.id
     })
-    if (result.code !== 0) {
-      this.showToast(result.message)
-    }
   }
 }
 </script>
@@ -322,41 +416,41 @@ export default class Task extends BasePage {
 
 .comment
   padding 24rpx 0 108rpx
-.comment-item
-  padding 24rpx
-.comment-avatar
-  display flex
-  align-items center
-  justify-content center
-  width 60rpx
-  height 60rpx
-  margin-right 24rpx
-  color #fff
-  font-size 20rpx
-  border-radius 50%
-.comment-user
-  color $color-text
-  padding-right 16rpx
-.comment-time
-  color $color-text-prompt
-  font-size 24rpx
-.comment-content
-  margin-left 84rpx
-  color $color-text-secondary
-  font-size 28rpx
-.comment-footer
-  position fixed
-  display flex
-  align-items center
-  bottom 0
-  left 0
-  width 100%
-  padding 24rpx 0
-  box-sizing border-box
-  color $color-text-prompt
-  background-color #fff
-  border-top 1rpx solid $color-divider
-  z-index 10
+  &-item
+    padding 24rpx
+  &-avatar
+    display flex
+    align-items center
+    justify-content center
+    width 60rpx
+    height 60rpx
+    margin-right 24rpx
+    color #fff
+    font-size 20rpx
+    border-radius 50%
+  &-user
+    color $color-text
+    padding-right 16rpx
+  &-time
+    color $color-text-prompt
+    font-size 24rpx
+  &-content
+    margin-left 84rpx
+    color $color-text-secondary
+    font-size 28rpx
+  &-footer
+    position fixed
+    display flex
+    align-items center
+    bottom 0
+    left 0
+    width 100%
+    padding 24rpx 0
+    box-sizing border-box
+    color $color-text-prompt
+    background-color #fff
+    border-top 1rpx solid $color-divider
+    z-index 10
 .btn-text
   margin 0
   padding 16rpx 24rpx
@@ -370,7 +464,8 @@ export default class Task extends BasePage {
   padding 16rpx 24rpx
   font-size 28rpx
   color $color-text-prompt
-.tap-btn
+.task-button
+  position relative
   display flex
   flex-direction column
   justify-content center
@@ -384,6 +479,28 @@ export default class Task extends BasePage {
   border 1rpx solid $color-text
   border-radius 32rpx
   box-shadow inset 0 0 16rpx rgba(0, 0, 0, 0.3)
+.task-button-done
+  position relative
+  display flex
+  flex-direction column
+  justify-content center
+  box-sizing border-box
+  width 160rpx
+  height 160rpx
+  margin 32rpx auto
+  font-size 100rpx
+  color #fff
+  background $color-primary
+  border-radius 32rpx
+.circle
+  position absolute
+  left 30rpx
+  top 30rpx
+  width 100rpx
+  height 100rpx
+  border-radius 50%
+  background-color rgba(0, 0, 0, 0.3)
+  z-index 1
 .task-title
   padding 16rpx 24rpx
   text-decoration-line underline
