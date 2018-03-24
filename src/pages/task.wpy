@@ -181,16 +181,26 @@ export default class Task extends BasePage {
       event.user_id = this.user.id
       event.task_id = this.task.id
       if (this.task.done === 0) {
-        this.task.done = 1
+        task.done = 1
         event.type = taskEvent.done
         event.event = taskEvent.doneText
       } else {
-        this.task.done = 0
+        task.done = 0
         event.type = taskEvent.reopen
         event.event = taskEvent.reopenText
       }
-      task.done = this.task.done
-      this.updateTask(this.task.id, task, event)
+      this.updateTask(this.task.id, task, event).then(res => {
+        if (res.code !== 0) {
+          this.showToast(res.message)
+          return
+        }
+        this.task.done = task.done
+        // 完成任务时设置完成时间为当前时间，避免一次查询
+        if (task.done === 1) {
+          this.task.done_at = date.toIOSString()
+        }
+        this.$apply()
+      })
     },
     showActions() {
       wepy.showActionSheet({

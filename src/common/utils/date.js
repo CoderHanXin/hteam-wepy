@@ -148,7 +148,11 @@ util.format = t => {
 }
 
 util.toIOSString = t => {
-  return moment(t).toISOString()
+  if (t) {
+    return moment(t).toISOString()
+  } else {
+    return moment().toISOString()
+  }
 }
 
 export default util
