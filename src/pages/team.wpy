@@ -8,7 +8,7 @@
         <text class="user-name">{{user.name}}</text>
         <text class="user-role">{{currentTeam.team_user.role_name}}</text>
       </view>
-      <view class="user-settings">
+      <view @tap="showSettings" class="user-settings">
         <text class="ht-icon ht-gear" style="font-size: 40rpx"></text>
         <text>设置</text>
       </view>
@@ -30,6 +30,15 @@
       </view>
     </view>
   </view>
+  <view :class="{page-cover-show: visable}" class="page-cover">
+    <view class="toolbar">
+      <text @tap="handleCancel" class="text-button">取消</text>
+      <text @tap="handleOk" class="text-button">保存</text>
+    </view>
+    <view class="input-cell center">
+      <input value="{{user.name}}" @input="inputChange" maxlength="20" type="text" placeholder="请输入你的名字" />
+    </view>
+  </view>
 </template>
 
 <script>
@@ -47,6 +56,12 @@ export default class Team extends BasePage {
   }
 
   data = {
+    name: '',
+    visable: false,
+    actions: [
+      '切换团队',
+      '修改名字'
+    ]
   }
 
   computed = {
@@ -71,6 +86,46 @@ export default class Team extends BasePage {
   }
 
   methods = {
+    inputChange(e) {
+      this.name = e.detail.value
+    },
+    handleCancel() {
+      this.visable = false
+    },
+    async handleOk() {
+      let name = this.name.trim()
+      if (name === '') {
+        this.showToast('请输入你的名字')
+        return
+      }
+      this.updateUser(name).then(res => {
+        if (res.code !== 0) {
+          this.showToast(res.message)
+          return
+        }
+        this.user.name = name
+        this.visable = false
+        this.$apply()
+      })
+    },
+    showSettings() {
+      wepy.showActionSheet({
+        itemList: this.actions,
+        itemColor: '#2d8cf0'
+      }).then(res => {
+        if (res.tapIndex === 0) {
+          wepy.navigateTo({
+            url: 'switchTeam'
+          })
+        } else if (res.tapIndex === 1) {
+          this.visable = true
+          this.$apply()
+        }
+      }).catch(err => {
+        // user cancel
+        console.log(err.errMsg)
+      })
+    },
     handleItemTap(item) {
       if (item.id === this.user.id) {
         wepy.switchTab({
@@ -100,6 +155,12 @@ export default class Team extends BasePage {
     this.store().allUsers = this.allUsers
     this.$apply()
   }
+
+  updateUser(name) {
+    return this.request(api.user.update.method, api.user.update.url.replace(':id', this.user.id), {
+      name
+    })
+  }
 }
 </script>
 
@@ -112,7 +173,7 @@ export default class Team extends BasePage {
   align-items center
   margin 0 24rpx 48rpx
   padding 40rpx 32rpx
-  background: linear-gradient(to right, #2d8cf0, #58adfc)
+  background linear-gradient(to right, #2d8cf0, #58adfc)
   border 1rpx solid #e0e0e0
   border-radius 16rpx
   box-shadow 0 0 6rpx rgba(0, 0, 0, 0.15)
