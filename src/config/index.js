@@ -2,7 +2,6 @@ const domain =
   process.env.NODE_ENV === 'production'
     ? 'https://api.hteam.url.com'
     : 'http://127.0.0.1:7001'
-    // : 'https://api.hteam.htwysoft.com'
 
 const api = {
   user: {
@@ -21,6 +20,10 @@ const api = {
     show: {
       method: 'GET',
       url: '/api/account/show'
+    },
+    update: {
+      method: 'PUT',
+      url: '/api/user/:id'
     },
     all: {
       method: 'GET',
