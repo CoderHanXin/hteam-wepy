@@ -39,7 +39,7 @@
         <text wx:else class="task-meta-link">添加任务描述</text>
       </view>
     </view>
-    <view class="comment">
+    <view wx:if="{{task.comments.length !== 0}}" class="comment">
       <view wx:for="{{task.comments}}" wx:key="{{index}}" wx:for-item="item" class="comment-item">
         <view class="flex-row" style="align-items:center">
           <view class="comment-avatar" style="background:{{wxsUtils.avatarColor(item.user.color)}}">
@@ -54,6 +54,18 @@
           <text>{{item.content}}</text>
         </view>
       </view>
+    </view>
+    <view class="card event">
+      <view @tap="toggleEventList" class="view-link" hover="true" hover-class="view-light-hover">{{eventListHeader}}</view>
+      <block wx:if="{{eventsVisable}}">
+        <view wx:for="{{eventList}}" wx:key="{{index}}" wx:for-item="item" class="event-item">
+          <text class="event-label">{{wxsDate.formatTime(item.created_at)}}</text>
+          <text class="event-label">{{item.user.name}}</text>
+          <text decode class="event-label">{{item.event}}</text>
+          <text wx:if="{{item.deadline}}" class="event-label">{{wxsDate.formatDate(item.deadline)}}</text>
+          <text></text>
+        </view>
+      </block>
     </view>
   </view>
   <view :class="{page-cover-show: visable}" class="page-cover">
@@ -110,6 +122,8 @@ export default class Task extends BasePage {
     },
     memberIndex: null,
     members: [],
+    eventsVisable: false,
+    eventList: [],
     visable: false,
     isEditTitle: false,
     isEditComment: false,
@@ -123,6 +137,9 @@ export default class Task extends BasePage {
   }
 
   computed = {
+    eventListHeader() {
+      return this.eventsVisable ? '隐藏任务动态' : '查看任务动态'
+    },
     deadlineLabel() {
       return date.format(this.task.deadline)
     },
@@ -355,6 +372,16 @@ export default class Task extends BasePage {
         this.$apply()
         console.log('clearAssignee')
       })
+    },
+    toggleEventList() {
+      if (this.eventsVisable) {
+        this.eventsVisable = false
+      } else {
+        this.eventsVisable = true
+        if (this.eventList.length === 0) {
+          this.getEventList()
+        }
+      }
     }
   }
 
@@ -382,6 +409,12 @@ export default class Task extends BasePage {
   async getProject() {
     const result = await this.request(api.project.show.method, api.project.show.url.replace(':id', this.project.id))
     this.project = result.data
+  }
+
+  async getEventList() {
+    const result = await this.request(api.task.showEvent.method, api.task.showEvent.url.replace(':id', this.task.id))
+    this.eventList = result.data
+    this.$apply()
   }
 
   updateTask(id, task, event) {
@@ -414,8 +447,23 @@ export default class Task extends BasePage {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
+.view-link
+  color $color-primary
+  padding 16rpx 24rpx
+  text-align center
+.event
+  margin 24rpx 0 120rpx
+  &-item
+    display flex
+    align-items center
+    flex-wrap wrap
+    padding 16rpx 32rpx
+  &-label
+    padding-right 24rpx
+    font-size 28rpx
+    color $color-text-prompt
 .comment
-  padding 24rpx 0 108rpx
+  padding 24rpx 0
   &-item
     padding 24rpx
   &-avatar
