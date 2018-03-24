@@ -53,7 +53,7 @@
         <input value="{{project.name}}" name="name" maxlength="20" focus="{{projectNameFocus}}" type="text" placeholder="项目名称" />
       </view>
       <view class="project-desc">
-        <textarea value="{{project.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="简单描述项目" class="project-desc-textarea" />
+        <textarea value="{{project.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="简单描述项目" class="textarea-cell" />
       </view>
       <view class="project-btn">
         <button form-type="submit" hover-class="btn-primary-hover" class="btn-primary">保存设置</button>
@@ -431,9 +431,6 @@ export default class Tasks extends BasePage {
   color $color-text
   border-bottom 1px solid $color-divider
   background #fff
-.project-desc-textarea
-  height 200rpx
-  width 100%
 .project-btn
   margin 64rpx 24rpx 0 24rpx
 </style>

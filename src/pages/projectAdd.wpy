@@ -1,7 +1,7 @@
 <template>
   <view class="padding-top-24">
     <form @submit="submit">
-      <view class="project-name">
+      <view class="input-cell center">
         <input name="name" maxlength="20" focus="true" type="text" placeholder="请输入项目名称" />
       </view>
       <view class="project-btn">
@@ -134,11 +134,6 @@ export default class ProjectAdd extends BasePage {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
-.project-name
-  padding 24rpx
-  color $color-text
-  background #fff
-  border-bottom 1px solid $color-divider
 .project-btn
   margin 64rpx 24rpx 0 24rpx
 </style>

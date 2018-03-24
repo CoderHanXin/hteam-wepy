@@ -75,10 +75,10 @@
         <button form-type="submit" class="btn-text">保存</button>
       </view>
       <view hidden="{{!visable}}" class="task-edit">
-        <textarea wx:if="{{isEditComment}}" name="comment" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入评论" class="task-edit-textarea" />
+        <textarea wx:if="{{isEditComment}}" name="comment" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入评论" class="textarea-cell" />
         <block wx:else>
-          <textarea wx:if="{{isEditTitle}}" value="{{task.title}}" name="title" maxlength="200" show-confirm-bar="{{false}}" placeholder="请输入任务名称" class="task-edit-textarea" />
-          <textarea wx:else value="{{task.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入任务描述" class="task-edit-textarea" />
+          <textarea wx:if="{{isEditTitle}}" value="{{task.title}}" name="title" maxlength="200" show-confirm-bar="{{false}}" placeholder="请输入任务名称" class="textarea-cell" />
+          <textarea wx:else value="{{task.desc}}" name="desc" maxlength="200" show-confirm-bar="{{false}}" placeholder="点击输入任务描述" class="textarea-cell" />
         </block>
       </view>
     </form>
@@ -575,7 +575,4 @@ export default class Task extends BasePage {
   color $color-text
   background #fff
   border-bottom 1px solid $color-divider
-.task-edit-textarea
-  height 200rpx
-  width 100%
 </style>

@@ -19,7 +19,7 @@
       <text @tap="handleCancel" class="text-button">取消</text>
       <text @tap="handleCreate" class="text-button">创建</text>
     </view>
-    <view class="team-input">
+    <view class="input-cell center">
       <input value="{{inputValue}}" @input="inputChange" maxlength="20" focus="{{inputFocus}}" type="text" placeholder="例如：研发团队" />
     </view>
   </view>
@@ -87,10 +87,4 @@ export default class SwitchTeam extends BasePage {
 </script>
 <style lang="stylus">
 @import '../common/assets/style/account'
-
-.team-input
-  padding 24rpx
-  text-align center
-  background #fff
-  border 1rpx solid $color-divider
 </style>

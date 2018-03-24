@@ -1,8 +1,8 @@
 <template>
   <view class="padding-top-24">
     <form @submit="submit">
-      <view class="task-title">
-        <textarea name="title" maxlength="200" show-confirm-bar="{{false}}" focus="true" placeholder="请输入任务名称" class="task-title-textarea" />
+      <view class="input-cell">
+        <textarea name="title" maxlength="200" show-confirm-bar="{{false}}" focus="true" placeholder="请输入任务名称" class="textarea-cell" />
       </view>
       <view class="task-meta">
         <text class="ht-icon ht-person-add"></text>
@@ -114,14 +114,6 @@ export default class TaskAdd extends BasePage {
 <style lang="stylus">
 @import '../common/assets/style/variable'
 
-.task-title
-  padding 16rpx 24rpx
-  color $color-text
-  background #fff
-  border-bottom 1px solid $color-divider
-.task-title-textarea
-  height 200rpx
-  width 100%
 .task-btn
   margin 24rpx
 </style>
