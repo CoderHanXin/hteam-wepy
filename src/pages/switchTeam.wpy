@@ -45,7 +45,7 @@ export default class SwitchTeam extends BasePage {
   methods = {
     switchTeam(item) {
       this.store().currentTeam = item
-      wepy.switchTab({
+      wepy.reLaunch({
         url: 'me'
       })
     },
