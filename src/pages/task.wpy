@@ -124,7 +124,8 @@ export default class Task extends BasePage {
       id: '',
       title: '',
       desc: '',
-      deadline: ''
+      deadline: '',
+      done: 0
     },
     project: {
       id: '',
@@ -530,7 +531,7 @@ export default class Task extends BasePage {
     z-index 10
 .btn-text
   margin 0
-  padding 16rpx 24rpx
+  padding 24rpx
   box-sizing content-box
   line-height 1.5
   color $color-primary
