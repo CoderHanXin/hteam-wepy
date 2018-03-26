@@ -19,7 +19,7 @@ const api = {
     },
     show: {
       method: 'GET',
-      url: '/api/account/show'
+      url: '/api/user/show'
     },
     update: {
       method: 'PUT',
