@@ -1,4 +1,5 @@
 <template>
+  <import src="/plugins/wxParse/wxParse.wxml" />
   <view class="padding-top-24">
     <view class="card">
       <view class="project-name">项目：{{project.name}}</view>
@@ -33,9 +34,12 @@
         </picker>
         <text @tap="clearDeadline" wx:if="{{task.deadline && task.done === 0}}" class="ht-icon ht-close"></text>
       </view>
-      <view @tap="editDesc" class="task-meta" style="align-items:flex-start">
+      <view class="task-meta" style="align-items:flex-start">
         <text class="ht-icon ht-detail margin-right-24"></text>
-        <text wx:if="{{task.desc}}" class="task-meta-label">{{task.desc}}</text>
+        <!-- <text wx:if="{{task.desc}}" class="task-meta-label">{{task.desc}}</text> -->
+        <view class="task-meta-html" wx:if="{{task.desc}}">
+          <htmlParser :parserContent.sync="desc"></htmlParser>
+        </view>
         <text wx:else class="task-meta-link">添加任务描述</text>
       </view>
     </view>
@@ -93,6 +97,7 @@
 
 <script>
 import wepy from 'wepy'
+import htmlParser from '@/components/htmlParser'
 import BasePage from 'BasePage'
 import date from 'utils/date'
 import wxsDate from '../wxs/date.wxs'
@@ -104,12 +109,17 @@ export default class Task extends BasePage {
     navigationBarTitleText: '任务详情'
   }
 
+  components = {
+    htmlParser: htmlParser
+  }
+
   wxs = {
     wxsDate,
     wxsUtils
   }
 
   data = {
+    desc: '',
     task: {
       id: '',
       title: '',
@@ -128,8 +138,9 @@ export default class Task extends BasePage {
     isEditTitle: false,
     isEditComment: false,
     actions: [
-      '编辑',
-      '删除'
+      '编辑标题',
+      '编辑描述',
+      '删除任务'
     ],
     animationHidden: true,
     animationData: {},
@@ -216,6 +227,14 @@ export default class Task extends BasePage {
           this.visable = true
           this.$apply()
         } else if (res.tapIndex === 1) {
+          if (this.task.done === 1) {
+            this.showToast('任务已完成，不能再次编辑。')
+            return
+          }
+          this.isEditTitle = false
+          this.visable = true
+          this.$apply()
+        } else if (res.tapIndex === 2) {
           wepy.showModal({
             title: '提醒',
             content: '确定要删除任务吗？',
@@ -237,13 +256,6 @@ export default class Task extends BasePage {
         return
       }
       this.isEditTitle = true
-      this.visable = true
-    },
-    editDesc() {
-      if (this.task.done === 1) {
-        return
-      }
-      this.isEditTitle = false
       this.visable = true
     },
     handleOk(e) {
@@ -413,7 +425,9 @@ export default class Task extends BasePage {
         break
       }
     }
+    this.desc = this.task.desc
     this.$apply()
+    this.$invoke('htmlParser', 'htmlParserLoad')
   }
 
   async getTask() {
