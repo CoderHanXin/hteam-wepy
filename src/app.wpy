@@ -112,4 +112,5 @@ export default class extends wepy.app {
 
 <style lang="stylus">
 @import './common/assets/style'
+@import './plugins/wxParse/wxParse'
 </style>
