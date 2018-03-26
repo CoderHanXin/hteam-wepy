@@ -8,7 +8,6 @@
           <view @tap="handleTap" :class="{'task-button':task.done === 0,'task-button-done':task.done === 1}">
             <text wx:if="{{task.done === 0}}">点击完成任务</text>
             <text wx:else class="ht-icon ht-check"></text>
-            <view animation="{{animationData}}" hidden="{{animationHidden}}" class="circle"></view>
           </view>
         </view>
         <view @tap="editTitle" class="task-title">
@@ -92,7 +91,7 @@
     <text class="flex-1">添加评论</text>
     <text @tap.stop="showActions" class="ht-icon ht-more-outline" style="padding: 0 24rpx"></text>
   </view>
-  <view></view>
+  <view animation="{{animationData}}" hidden="{{animationHidden}}" class="circle"></view>
 </template>
 
 <script>
@@ -144,8 +143,7 @@ export default class Task extends BasePage {
       '删除任务'
     ],
     animationHidden: true,
-    animationData: {},
-    tapDisabled: false
+    animationData: {}
   }
 
   computed = {
@@ -162,12 +160,6 @@ export default class Task extends BasePage {
 
   methods = {
     handleTap() {
-      if (this.tapDisabled) {
-        this.showToast('请勿连续点击！')
-        return
-      } else {
-        this.tapDisabled = true
-      }
       // 先显示动画层
       this.animationHidden = false
       this.$apply()
@@ -179,14 +171,13 @@ export default class Task extends BasePage {
       })
       this.animationData = animation.export()
 
-      // 动画执行完后将动画层隐藏
+      // 动画执行完后将动画层恢复原状
       setTimeout(() => {
         this.animationHidden = true
-        this.tapDisabled = false
+        this.$apply()
         animation.scale(1).opacity(1).step({ duration: 0 })
         this.animationData = animation.export()
-        this.$apply()
-      }, 1000)
+      }, 1100)
 
       let task = {}
       let event = {}
@@ -571,14 +562,15 @@ export default class Task extends BasePage {
   background $color-primary
   border-radius 32rpx
 .circle
-  position absolute
-  left 30rpx
-  top 30rpx
+  position fixed
+  left 50%
+  margin-left -50rpx
+  top 160rpx
   width 100rpx
   height 100rpx
   border-radius 50%
   background-color rgba(0, 0, 0, 0.3)
-  z-index 1
+  z-index 200
 .task-title
   padding 16rpx 24rpx
   text-decoration-line underline
