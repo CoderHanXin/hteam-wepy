@@ -33,7 +33,7 @@ const api = {
   team: {
     create: {
       method: 'POST',
-      url: '/api/team/create'
+      url: '/api/team'
     }
   },
   project: {
