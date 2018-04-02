@@ -28,7 +28,6 @@
 <script>
 import wepy from 'wepy'
 import BasePage from 'BasePage'
-import storage from 'utils/storage'
 import { api } from '@/config'
 export default class Bind extends BasePage {
   config = {
@@ -73,7 +72,6 @@ export default class Bind extends BasePage {
 
     if (result.code === 0) {
       this.showToast('绑定成功', 'success')
-      storage.set('token', result.data.token)
       wepy.redirectTo({
         url: 'launch'
       })

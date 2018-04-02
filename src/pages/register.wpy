@@ -26,7 +26,6 @@
 <script>
 import wepy from 'wepy'
 import BasePage from 'BasePage'
-import storage from 'utils/storage'
 import { api } from '@/config'
 export default class Register extends BasePage {
   config = {
@@ -80,7 +79,6 @@ export default class Register extends BasePage {
     })
     if (result.code === 0) {
       this.showToast('注册成功', 'success')
-      storage.set('token', result.data.token)
       this.store().user = result.data.user
       wepy.redirectTo({
         url: 'switchTeam'
