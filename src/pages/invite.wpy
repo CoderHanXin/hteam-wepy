@@ -1,0 +1,60 @@
+<template>
+  <view class="invite">
+    <view class="invite-logo">HTeam</view>
+    <view class="invite-team">
+      <view>「{{currentTeam.name}}」团队</view>
+    </view>
+    <view class="invite-footer">
+      <view>点击下方按钮邀请小伙伴加入团队</view>
+      <button open-type="share" class="invite-button">邀请</button>
+    </view>
+  </view>
+</template>
+
+<script>
+import BasePage from 'BasePage'
+export default class Invite extends BasePage {
+  config = {
+    navigationBarTitleText: '邀请成员'
+  }
+
+  onLoad() {
+    this.user = this.store().user
+    this.currentTeam = this.store().currentTeam
+  }
+
+  onShareAppMessage(res) {
+    return {
+      title: `${this.user.name}邀请您加入「${this.currentTeam.name}」`,
+      path: `/pages/join?userId=${this.user.id}&teamId=${this.currentTeam.id}`
+    }
+  }
+}
+</script>
+
+<style lang="stylus">
+@import '../common/assets/style/variable'
+
+.invite
+  position relative
+  height 100%
+  text-align center
+  color #fff
+  background $color-primary
+  &-logo
+    margin-top 25%
+    font-size 60rpx
+  &-team
+    margin-top 20%
+    font-size 48rpx
+  &-footer
+    position absolute
+    width 100%
+    font-size 32rpx
+    bottom 36rpx
+    left 0
+  &-button
+    width 80%
+    margin 36rpx auto
+    color $color-primary
+</style>

@@ -60,6 +60,7 @@ export default class Team extends BasePage {
     visable: false,
     actions: [
       '切换团队',
+      '邀请成员',
       '修改名字'
     ]
   }
@@ -118,6 +119,10 @@ export default class Team extends BasePage {
             url: 'switchTeam'
           })
         } else if (res.tapIndex === 1) {
+          wepy.navigateTo({
+            url: 'invite'
+          })
+        } else if (res.tapIndex === 2) {
           this.visable = true
           this.$apply()
         }
