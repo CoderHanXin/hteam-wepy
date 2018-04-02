@@ -11,13 +11,13 @@
     </view>
     <view class="account-box">
       <view class="account-item border-bottom">
-        <input class="account-input" @input="inputChangeName" @confirm="focusUsername" confirm-type="next" maxlength="20" placeholder="你的名字" focus="true" />
+        <input class="account-input" @input="inputChangeName" @confirm="focusEmail" confirm-type="next" maxlength="20" placeholder="你的名字" focus="true" />
       </view>
       <view class="account-item border-bottom">
-        <input class="account-input" @input="inputChangeUsername" @confirm="focusPassword" confirm-type="next" maxlength="20" placeholder="用户名" focus="{{usernameFocus}}" />
+        <input class="account-input" @input="inputChangeEmail" @confirm="focusPassword" confirm-type="next" maxlength="50" placeholder="邮箱" focus="{{emailFocus}}" />
       </view>
       <view class="account-item">
-        <input class="account-input" @input="inputChangePassword" @confirm="submit" confirm-type="send" maxlength="16" placeholder="密码" focus="{{passwordFocus}}" password="true" />
+        <input class="account-input" @input="inputChangePassword" @confirm="submit" confirm-type="send" maxlength="32" placeholder="密码" focus="{{passwordFocus}}" password="true" />
       </view>
     </view>
   </view>
@@ -33,25 +33,25 @@ export default class Register extends BasePage {
     navigationBarTitleText: '注册账号'
   }
   data = {
-    usernameFocus: false,
+    emailFocus: false,
     passwordFocus: false,
-    username: '',
+    email: '',
     name: '',
     password: ''
   }
   methods = {
-    focusUsername() {
-      this.usernameFocus = true
+    focusEmail() {
+      this.emailFocus = true
     },
     focusPassword() {
       this.passwordFocus = true
-      this.usernameFocus = false
+      this.emailFocus = false
     },
     inputChangeName(e) {
       this.name = e.detail.value
     },
-    inputChangeUsername(e) {
-      this.username = e.detail.value
+    inputChangeEmail(e) {
+      this.email = e.detail.value
     },
     inputChangePassword(e) {
       this.password = e.detail.value
@@ -61,8 +61,8 @@ export default class Register extends BasePage {
         this.showToast('请输入你的名字')
         return
       }
-      if (this.username.trim() === '') {
-        this.showToast('请输入用户名')
+      if (this.email.trim() === '') {
+        this.showToast('请输入邮箱')
         return
       }
       if (this.password.trim() === '') {
@@ -74,7 +74,7 @@ export default class Register extends BasePage {
   }
   async register() {
     const result = await this.request(api.user.register.method, api.user.register.url, {
-      username: this.username,
+      email: this.email,
       password: this.password,
       name: this.name
     })
