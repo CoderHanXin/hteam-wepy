@@ -26,7 +26,7 @@ export default class Invite extends BasePage {
   onShareAppMessage(res) {
     return {
       title: `${this.user.name}邀请您加入「${this.currentTeam.name}」`,
-      path: `/pages/join?userId=${this.user.id}&teamId=${this.currentTeam.id}`
+      path: `/pages/join?teamId=${this.currentTeam.id}&inviter=${this.user.name}`
     }
   }
 }
