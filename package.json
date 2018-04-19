@@ -19,7 +19,7 @@
     "@minui/wxc-loadmore": "^1.0.5",
     "moment": "^2.21.0",
     "wepy": "^1.7.1",
-    "wepy-async-function": "^1.4.5"
+    "wepy-async-function": "^1.4.6"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.1",
